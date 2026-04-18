@@ -28,18 +28,23 @@ func (r *TagRepo) Upsert(ctx context.Context, slug, label string) error {
 }
 
 func (r *TagRepo) List(ctx context.Context) ([]*Tag, error) {
-	rows, err := r.pool.Query(ctx, `SELECT slug, label FROM tags ORDER BY slug`)
+	rows, err := r.pool.Query(ctx, `
+		SELECT DISTINCT unnest(tags) AS slug
+		FROM posts
+		WHERE published = true
+		ORDER BY slug
+	`)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var tags []*Tag
+	tags := make([]*Tag, 0)
 	for rows.Next() {
-		var tag Tag
-		if err := rows.Scan(&tag.Slug, &tag.Label); err != nil {
+		var slug string
+		if err := rows.Scan(&slug); err != nil {
 			return nil, err
 		}
-		tags = append(tags, &tag)
+		tags = append(tags, &Tag{Slug: slug, Label: slug})
 	}
 	return tags, rows.Err()
 }

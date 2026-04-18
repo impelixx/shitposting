@@ -47,7 +47,7 @@ func (r *CommentRepo) ListByPostID(ctx context.Context, postID string) ([]*Comme
 		return nil, err
 	}
 	defer rows.Close()
-	var comments []*Comment
+	comments := make([]*Comment, 0)
 	for rows.Next() {
 		var c Comment
 		if err := rows.Scan(&c.ID, &c.PostID, &c.Author, &c.Body, &c.CreatedAt); err != nil {

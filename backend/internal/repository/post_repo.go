@@ -87,7 +87,7 @@ func (r *PostRepo) List(ctx context.Context, tag string, limit, offset int) ([]*
 		return nil, err
 	}
 	defer rows.Close()
-	var posts []*Post
+	posts := make([]*Post, 0)
 	for rows.Next() {
 		var p Post
 		if err := rows.Scan(&p.ID, &p.Title, &p.Slug, &p.Body, &p.Excerpt, &p.Tags, &p.Published, &p.CreatedAt, &p.UpdatedAt); err != nil {
@@ -106,7 +106,7 @@ func (r *PostRepo) ListAll(ctx context.Context) ([]*Post, error) {
 		return nil, err
 	}
 	defer rows.Close()
-	var posts []*Post
+	posts := make([]*Post, 0)
 	for rows.Next() {
 		var p Post
 		if err := rows.Scan(&p.ID, &p.Title, &p.Slug, &p.Body, &p.Excerpt, &p.Tags, &p.Published, &p.CreatedAt, &p.UpdatedAt); err != nil {

@@ -2,10 +2,12 @@ package handler
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 	"strconv"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/jackc/pgx/v5"
 	"github.com/impelix/blogik-backend/internal/repository"
 	"github.com/impelix/blogik-backend/internal/search"
 )
@@ -86,6 +88,10 @@ func (h *PostsHandler) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	post, err := h.repo.Update(r.Context(), slug, in)
+	if errors.Is(err, pgx.ErrNoRows) {
+		http.Error(w, "not found", http.StatusNotFound)
+		return
+	}
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return

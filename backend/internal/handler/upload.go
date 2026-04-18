@@ -1,9 +1,7 @@
 package handler
 
 import (
-	"context"
 	"fmt"
-	"io"
 	"net/http"
 	"path/filepath"
 	"strings"
@@ -41,7 +39,7 @@ func (h *UploadHandler) Upload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	key := fmt.Sprintf("uploads/%d%s", time.Now().UnixNano(), ext)
-	url, err := h.r2.Upload(context.Background(), key, contentType, io.Reader(file))
+	url, err := h.r2.Upload(r.Context(), key, contentType, file)
 	if err != nil {
 		http.Error(w, "upload failed", http.StatusInternalServerError)
 		return
