@@ -1,0 +1,121 @@
+<h2>Как устроена главная страница?</h2>
+<p class="subtitle">Блог обо всём — важно чтобы статьи было удобно просматривать</p>
+
+<div class="cards">
+
+  <div class="card" data-choice="feed" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#fffbf5;padding:16px;font-family:Georgia,serif;">
+      <div style="border-bottom:1px solid #f0d9b5;padding-bottom:12px;margin-bottom:12px;display:flex;gap:12px;align-items:flex-start;">
+        <div style="text-align:center;background:#f0c080;border-radius:6px;padding:6px 10px;min-width:36px;flex-shrink:0">
+          <div style="font-size:16px;font-weight:900;color:#3d2b1f;font-family:system-ui;line-height:1">18</div>
+          <div style="font-size:9px;color:#7a5c3a;text-transform:uppercase;font-family:system-ui">апр</div>
+        </div>
+        <div>
+          <div style="font-size:14px;color:#3d2b1f;font-weight:700;">Как я перестал бояться пустого экрана</div>
+          <div style="font-size:11px;color:#7a5c3a;margin-top:3px;">Иногда лучшее — просто начать...</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:12px;align-items:flex-start;">
+        <div style="text-align:center;background:#f0c080;border-radius:6px;padding:6px 10px;min-width:36px;flex-shrink:0">
+          <div style="font-size:16px;font-weight:900;color:#3d2b1f;font-family:system-ui;line-height:1">15</div>
+          <div style="font-size:9px;color:#7a5c3a;text-transform:uppercase;font-family:system-ui">апр</div>
+        </div>
+        <div>
+          <div style="font-size:14px;color:#3d2b1f;font-weight:700;">Три месяца с Rust: честный отзыв</div>
+          <div style="font-size:11px;color:#7a5c3a;margin-top:3px;">Сложнее чем я думал, но того стоит...</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — Лента</h3>
+      <p>Статьи идут одна за другой в хронологическом порядке. Просто, как Twitter/ЖЖ. Фокус на тексте.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="grid" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#fffbf5;padding:16px;font-family:Georgia,serif;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        <div style="background:#fff;border:1px solid #f0d9b5;border-radius:6px;padding:10px;">
+          <div style="display:flex;gap:6px;align-items:center;margin-bottom:6px">
+            <div style="background:#f0c080;border-radius:4px;padding:3px 6px;text-align:center">
+              <div style="font-size:13px;font-weight:900;color:#3d2b1f;font-family:system-ui;line-height:1">18</div>
+              <div style="font-size:8px;color:#7a5c3a;font-family:system-ui">апр</div>
+            </div>
+          </div>
+          <div style="font-size:12px;color:#3d2b1f;font-weight:700;line-height:1.3">Пустой экран</div>
+          <div style="font-size:10px;color:#7a5c3a;margin-top:3px;">Иногда лучшее...</div>
+        </div>
+        <div style="background:#fff;border:1px solid #f0d9b5;border-radius:6px;padding:10px;">
+          <div style="display:flex;gap:6px;align-items:center;margin-bottom:6px">
+            <div style="background:#f0c080;border-radius:4px;padding:3px 6px;text-align:center">
+              <div style="font-size:13px;font-weight:900;color:#3d2b1f;font-family:system-ui;line-height:1">15</div>
+              <div style="font-size:8px;color:#7a5c3a;font-family:system-ui">апр</div>
+            </div>
+          </div>
+          <div style="font-size:12px;color:#3d2b1f;font-weight:700;line-height:1.3">Три месяца с Rust</div>
+          <div style="font-size:10px;color:#7a5c3a;margin-top:3px;">Сложнее чем думал...</div>
+        </div>
+        <div style="background:#fff;border:1px solid #f0d9b5;border-radius:6px;padding:10px;">
+          <div style="display:flex;gap:6px;align-items:center;margin-bottom:6px">
+            <div style="background:#f0c080;border-radius:4px;padding:3px 6px;text-align:center">
+              <div style="font-size:13px;font-weight:900;color:#3d2b1f;font-family:system-ui;line-height:1">10</div>
+              <div style="font-size:8px;color:#7a5c3a;font-family:system-ui">апр</div>
+            </div>
+          </div>
+          <div style="font-size:12px;color:#3d2b1f;font-weight:700;line-height:1.3">Почему я удалил Instagram</div>
+          <div style="font-size:10px;color:#7a5c3a;margin-top:3px;">Три недели спустя...</div>
+        </div>
+        <div style="background:#fff;border:1px solid #f0d9b5;border-radius:6px;padding:10px;">
+          <div style="display:flex;gap:6px;align-items:center;margin-bottom:6px">
+            <div style="background:#f0c080;border-radius:4px;padding:3px 6px;text-align:center">
+              <div style="font-size:13px;font-weight:900;color:#3d2b1f;font-family:system-ui;line-height:1">02</div>
+              <div style="font-size:8px;color:#7a5c3a;font-family:system-ui">апр</div>
+            </div>
+          </div>
+          <div style="font-size:12px;color:#3d2b1f;font-weight:700;line-height:1.3">Книги марта</div>
+          <div style="font-size:10px;color:#7a5c3a;margin-top:3px;">Что прочитал и зачем...</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — Сетка</h3>
+      <p>Карточки в 2 колонки. Видно сразу много статей, удобно листать. Как Pinterest для текстов.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="magazine" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#fffbf5;padding:16px;font-family:Georgia,serif;">
+      <div style="border-bottom:2px solid #f0c080;padding-bottom:10px;margin-bottom:10px;display:flex;gap:10px;align-items:flex-start;">
+        <div style="text-align:center;background:#f0c080;border-radius:6px;padding:6px 10px;min-width:36px;flex-shrink:0">
+          <div style="font-size:16px;font-weight:900;color:#3d2b1f;font-family:system-ui;line-height:1">18</div>
+          <div style="font-size:9px;color:#7a5c3a;text-transform:uppercase;font-family:system-ui">апр</div>
+        </div>
+        <div>
+          <div style="font-size:15px;color:#3d2b1f;font-weight:700;line-height:1.3">Как я перестал бояться пустого экрана</div>
+          <div style="font-size:11px;color:#7a5c3a;margin-top:3px;line-height:1.4">Иногда лучшее, что можно сделать — просто начать писать...</div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        <div style="display:flex;gap:8px;align-items:flex-start;">
+          <div style="background:#f0c080;border-radius:4px;padding:3px 7px;text-align:center;flex-shrink:0">
+            <div style="font-size:12px;font-weight:900;color:#3d2b1f;font-family:system-ui;line-height:1">15</div>
+            <div style="font-size:8px;color:#7a5c3a;font-family:system-ui">апр</div>
+          </div>
+          <div style="font-size:11px;color:#3d2b1f;font-weight:600;line-height:1.3">Три месяца с Rust</div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:flex-start;">
+          <div style="background:#f0c080;border-radius:4px;padding:3px 7px;text-align:center;flex-shrink:0">
+            <div style="font-size:12px;font-weight:900;color:#3d2b1f;font-family:system-ui;line-height:1">10</div>
+            <div style="font-size:8px;color:#7a5c3a;font-family:system-ui">апр</div>
+          </div>
+          <div style="font-size:11px;color:#3d2b1f;font-weight:600;line-height:1.3">Удалил Instagram</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C — Журнальный</h3>
+      <p>Последняя статья крупно сверху, остальные — мелкой сеткой ниже. Акцент на свежем материале.</p>
+    </div>
+  </div>
+
+</div>

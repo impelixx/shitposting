@@ -1,0 +1,158 @@
+<h2>Выбери цветовую схему</h2>
+<p class="subtitle">Та же структура, разные палитры — кликни на ту что нравится</p>
+
+<div class="cards">
+
+  <div class="card" data-choice="slate" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:0;overflow:hidden;border-radius:6px 6px 0 0;">
+      <div style="background:#1e293b;padding:8px 14px;display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-family:Georgia,serif;font-size:13px;color:#e2e8f0;font-weight:700;">Мой блог</span>
+        <span style="font-size:10px;color:#94a3b8;font-family:system-ui;">Статьи · Теги · О себе</span>
+      </div>
+      <div style="background:#f8fafc;display:flex;">
+        <div style="flex:1;padding:12px 14px;border-right:1px solid #e2e8f0;">
+          <div style="display:flex;gap:6px;margin-bottom:8px;">
+            <span style="background:#dbeafe;color:#3b82f6;font-size:9px;padding:2px 7px;border-radius:10px;font-family:system-ui;">#личное</span>
+            <span style="background:#dbeafe;color:#3b82f6;font-size:9px;padding:2px 7px;border-radius:10px;font-family:system-ui;">#мысли</span>
+          </div>
+          <div style="display:flex;gap:8px;align-items:flex-start;">
+            <div style="text-align:center;background:#3b82f6;border-radius:5px;padding:4px 7px;min-width:30px;flex-shrink:0;">
+              <div style="font-size:13px;font-weight:900;color:#fff;font-family:system-ui;line-height:1;">18</div>
+              <div style="font-size:8px;color:#bfdbfe;font-family:system-ui;">апр</div>
+            </div>
+            <div>
+              <div style="font-size:12px;color:#1e293b;font-weight:700;font-family:Georgia,serif;line-height:1.3;">Как я перестал бояться пустого экрана</div>
+              <div style="font-size:10px;color:#64748b;margin-top:3px;">5 мин · 💬 12</div>
+            </div>
+          </div>
+        </div>
+        <div style="width:90px;padding:12px 10px;background:#f1f5f9;">
+          <div style="font-size:9px;font-weight:700;color:#1e293b;font-family:system-ui;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Теги</div>
+          <div style="display:flex;flex-wrap:wrap;gap:3px;">
+            <span style="background:#dbeafe;color:#3b82f6;font-size:8px;padding:2px 5px;border-radius:8px;font-family:system-ui;">#rust</span>
+            <span style="background:#dbeafe;color:#3b82f6;font-size:8px;padding:2px 5px;border-radius:8px;font-family:system-ui;">#книги</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — Сине-серый (Slate)</h3>
+      <p>Тёмная шапка, белый фон, синие акценты. Строго и современно. Напоминает Notion или Linear.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="forest" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:0;overflow:hidden;border-radius:6px 6px 0 0;">
+      <div style="background:#1a2e1a;padding:8px 14px;display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-family:Georgia,serif;font-size:13px;color:#d4edda;font-weight:700;">Мой блог</span>
+        <span style="font-size:10px;color:#86b89a;font-family:system-ui;">Статьи · Теги · О себе</span>
+      </div>
+      <div style="background:#f9fdf9;display:flex;">
+        <div style="flex:1;padding:12px 14px;border-right:1px solid #d4edda;">
+          <div style="display:flex;gap:6px;margin-bottom:8px;">
+            <span style="background:#d4edda;color:#2d6a4f;font-size:9px;padding:2px 7px;border-radius:10px;font-family:system-ui;">#личное</span>
+            <span style="background:#d4edda;color:#2d6a4f;font-size:9px;padding:2px 7px;border-radius:10px;font-family:system-ui;">#мысли</span>
+          </div>
+          <div style="display:flex;gap:8px;align-items:flex-start;">
+            <div style="text-align:center;background:#2d6a4f;border-radius:5px;padding:4px 7px;min-width:30px;flex-shrink:0;">
+              <div style="font-size:13px;font-weight:900;color:#fff;font-family:system-ui;line-height:1;">18</div>
+              <div style="font-size:8px;color:#95d5b2;font-family:system-ui;">апр</div>
+            </div>
+            <div>
+              <div style="font-size:12px;color:#1a2e1a;font-weight:700;font-family:Georgia,serif;line-height:1.3;">Как я перестал бояться пустого экрана</div>
+              <div style="font-size:10px;color:#52796f;margin-top:3px;">5 мин · 💬 12</div>
+            </div>
+          </div>
+        </div>
+        <div style="width:90px;padding:12px 10px;background:#f0faf0;">
+          <div style="font-size:9px;font-weight:700;color:#1a2e1a;font-family:system-ui;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Теги</div>
+          <div style="display:flex;flex-wrap:wrap;gap:3px;">
+            <span style="background:#d4edda;color:#2d6a4f;font-size:8px;padding:2px 5px;border-radius:8px;font-family:system-ui;">#rust</span>
+            <span style="background:#d4edda;color:#2d6a4f;font-size:8px;padding:2px 5px;border-radius:8px;font-family:system-ui;">#книги</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — Лесной (Forest)</h3>
+      <p>Тёмно-зелёная шапка, мягкий белый фон, зелёные акценты. Природно и спокойно.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="ink" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:0;overflow:hidden;border-radius:6px 6px 0 0;">
+      <div style="background:#111827;padding:8px 14px;display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-family:Georgia,serif;font-size:13px;color:#f9fafb;font-weight:700;">Мой блог</span>
+        <span style="font-size:10px;color:#6b7280;font-family:system-ui;">Статьи · Теги · О себе</span>
+      </div>
+      <div style="background:#fff;display:flex;">
+        <div style="flex:1;padding:12px 14px;border-right:1px solid #f3f4f6;">
+          <div style="display:flex;gap:6px;margin-bottom:8px;">
+            <span style="background:#f3f4f6;color:#374151;font-size:9px;padding:2px 7px;border-radius:10px;font-family:system-ui;">#личное</span>
+            <span style="background:#f3f4f6;color:#374151;font-size:9px;padding:2px 7px;border-radius:10px;font-family:system-ui;">#мысли</span>
+          </div>
+          <div style="display:flex;gap:8px;align-items:flex-start;">
+            <div style="text-align:center;background:#111827;border-radius:5px;padding:4px 7px;min-width:30px;flex-shrink:0;">
+              <div style="font-size:13px;font-weight:900;color:#fff;font-family:system-ui;line-height:1;">18</div>
+              <div style="font-size:8px;color:#9ca3af;font-family:system-ui;">апр</div>
+            </div>
+            <div>
+              <div style="font-size:12px;color:#111827;font-weight:700;font-family:Georgia,serif;line-height:1.3;">Как я перестал бояться пустого экрана</div>
+              <div style="font-size:10px;color:#6b7280;margin-top:3px;">5 мин · 💬 12</div>
+            </div>
+          </div>
+        </div>
+        <div style="width:90px;padding:12px 10px;background:#f9fafb;">
+          <div style="font-size:9px;font-weight:700;color:#111827;font-family:system-ui;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Теги</div>
+          <div style="display:flex;flex-wrap:wrap;gap:3px;">
+            <span style="background:#f3f4f6;color:#374151;font-size:8px;padding:2px 5px;border-radius:8px;font-family:system-ui;">#rust</span>
+            <span style="background:#f3f4f6;color:#374151;font-size:8px;padding:2px 5px;border-radius:8px;font-family:system-ui;">#книги</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C — Чёрно-белый (Ink)</h3>
+      <p>Чёрная шапка, чистый белый, серые акценты. Максимально нейтрально — контент на первом плане.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="violet" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:0;overflow:hidden;border-radius:6px 6px 0 0;">
+      <div style="background:#2e1065;padding:8px 14px;display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-family:Georgia,serif;font-size:13px;color:#e9d5ff;font-weight:700;">Мой блог</span>
+        <span style="font-size:10px;color:#a78bfa;font-family:system-ui;">Статьи · Теги · О себе</span>
+      </div>
+      <div style="background:#faf5ff;display:flex;">
+        <div style="flex:1;padding:12px 14px;border-right:1px solid #e9d5ff;">
+          <div style="display:flex;gap:6px;margin-bottom:8px;">
+            <span style="background:#ede9fe;color:#7c3aed;font-size:9px;padding:2px 7px;border-radius:10px;font-family:system-ui;">#личное</span>
+            <span style="background:#ede9fe;color:#7c3aed;font-size:9px;padding:2px 7px;border-radius:10px;font-family:system-ui;">#мысли</span>
+          </div>
+          <div style="display:flex;gap:8px;align-items:flex-start;">
+            <div style="text-align:center;background:#7c3aed;border-radius:5px;padding:4px 7px;min-width:30px;flex-shrink:0;">
+              <div style="font-size:13px;font-weight:900;color:#fff;font-family:system-ui;line-height:1;">18</div>
+              <div style="font-size:8px;color:#ddd6fe;font-family:system-ui;">апр</div>
+            </div>
+            <div>
+              <div style="font-size:12px;color:#2e1065;font-weight:700;font-family:Georgia,serif;line-height:1.3;">Как я перестал бояться пустого экрана</div>
+              <div style="font-size:10px;color:#7c3aed;margin-top:3px;">5 мин · 💬 12</div>
+            </div>
+          </div>
+        </div>
+        <div style="width:90px;padding:12px 10px;background:#f5f3ff;">
+          <div style="font-size:9px;font-weight:700;color:#2e1065;font-family:system-ui;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Теги</div>
+          <div style="display:flex;flex-wrap:wrap;gap:3px;">
+            <span style="background:#ede9fe;color:#7c3aed;font-size:8px;padding:2px 5px;border-radius:8px;font-family:system-ui;">#rust</span>
+            <span style="background:#ede9fe;color:#7c3aed;font-size:8px;padding:2px 5px;border-radius:8px;font-family:system-ui;">#книги</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>D — Фиолетовый (Violet)</h3>
+      <p>Тёмно-фиолетовая шапка, лавандовый фон, яркие акценты. Необычно и запоминается.</p>
+    </div>
+  </div>
+
+</div>

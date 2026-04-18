@@ -1,0 +1,115 @@
+<h2>Как выглядит страница статьи?</h2>
+<p class="subtitle">Цвета уже выбраны — закатный стиль. Выбери компоновку страницы.</p>
+
+<div class="cards">
+
+  <div class="card" data-choice="centered" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:0;overflow:hidden;border-radius:6px 6px 0 0;">
+      <div style="background:#1c1917;padding:8px 14px;display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-family:Georgia,serif;font-size:13px;color:#fafaf9;font-weight:700;">Мой блог</span>
+        <span style="font-size:10px;color:#78716c;font-family:system-ui;">Статьи · Теги · О блоге</span>
+      </div>
+      <div style="background:#fafaf9;padding:16px 30px;">
+        <div style="max-width:340px;margin:0 auto;">
+          <div style="display:flex;gap:5px;margin-bottom:8px;">
+            <span style="background:#ffedd5;color:#c2410c;font-size:9px;padding:2px 7px;border-radius:10px;font-family:system-ui;">#личное</span>
+          </div>
+          <div style="font-size:16px;color:#1c1917;font-weight:700;font-family:Georgia,serif;line-height:1.3;margin-bottom:8px;">Как я перестал бояться пустого экрана</div>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid #e7e5e4;">
+            <div style="text-align:center;background:#f97316;border-radius:5px;padding:3px 6px;min-width:26px;">
+              <div style="font-size:11px;font-weight:900;color:#fff;font-family:system-ui;line-height:1;">18</div>
+              <div style="font-size:7px;color:#ffedd5;font-family:system-ui;">апр</div>
+            </div>
+            <span style="font-size:9px;color:#78716c;font-family:system-ui;">5 мин чтения · 💬 12</span>
+          </div>
+          <div style="font-size:11px;color:#44403c;font-family:Georgia,serif;line-height:1.7;">
+            Иногда лучшее, что можно сделать — это просто начать. Я долго откладывал написание этой статьи именно потому, что не знал с чего начать. Потом понял — это и есть тема...
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — Центрированная колонка</h3>
+      <p>Текст по центру, узкая колонка ~680px. Как Medium. Максимально удобно читать — взгляд не прыгает.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="sidebar" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:0;overflow:hidden;border-radius:6px 6px 0 0;">
+      <div style="background:#1c1917;padding:8px 14px;display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-family:Georgia,serif;font-size:13px;color:#fafaf9;font-weight:700;">Мой блог</span>
+        <span style="font-size:10px;color:#78716c;font-family:system-ui;">Статьи · Теги · О блоге</span>
+      </div>
+      <div style="background:#fafaf9;display:flex;">
+        <div style="flex:1;padding:14px 16px;border-right:1px solid #e7e5e4;">
+          <div style="display:flex;gap:5px;margin-bottom:6px;">
+            <span style="background:#ffedd5;color:#c2410c;font-size:9px;padding:2px 7px;border-radius:10px;font-family:system-ui;">#личное</span>
+          </div>
+          <div style="font-size:14px;color:#1c1917;font-weight:700;font-family:Georgia,serif;line-height:1.3;margin-bottom:6px;">Как я перестал бояться пустого экрана</div>
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid #e7e5e4;">
+            <div style="text-align:center;background:#f97316;border-radius:4px;padding:2px 5px;min-width:24px;">
+              <div style="font-size:10px;font-weight:900;color:#fff;font-family:system-ui;line-height:1;">18</div>
+              <div style="font-size:7px;color:#ffedd5;font-family:system-ui;">апр</div>
+            </div>
+            <span style="font-size:9px;color:#78716c;font-family:system-ui;">5 мин · 💬 12</span>
+          </div>
+          <div style="font-size:10px;color:#44403c;font-family:Georgia,serif;line-height:1.6;">
+            Иногда лучшее — просто начать. Я долго откладывал именно потому, что не знал с чего...
+          </div>
+        </div>
+        <div style="width:90px;padding:12px 10px;background:#f5f5f4;">
+          <div style="font-size:8px;font-weight:700;color:#1c1917;font-family:system-ui;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Содержание</div>
+          <div style="font-size:8px;color:#f97316;font-family:system-ui;line-height:1.8;">
+            <div>→ Введение</div>
+            <div>→ Проблема</div>
+            <div>→ Решение</div>
+            <div>→ Итоги</div>
+          </div>
+          <div style="margin-top:10px;font-size:8px;font-weight:700;color:#1c1917;font-family:system-ui;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Похожее</div>
+          <div style="font-size:8px;color:#44403c;font-family:system-ui;line-height:1.6;">
+            <div style="color:#f97316;">Три месяца с Rust</div>
+            <div style="color:#f97316;margin-top:2px;">Книги марта</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — С сайдбаром</h3>
+      <p>Текст + правый сайдбар с оглавлением и похожими статьями. Удобно для длинных текстов, помогает навигировать.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="full" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:0;overflow:hidden;border-radius:6px 6px 0 0;">
+      <div style="background:#1c1917;padding:8px 14px;display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-family:Georgia,serif;font-size:13px;color:#fafaf9;font-weight:700;">Мой блог</span>
+        <span style="font-size:10px;color:#78716c;font-family:system-ui;">Статьи · Теги · О блоге</span>
+      </div>
+      <!-- Hero -->
+      <div style="background:#1c1917;padding:16px 18px;border-bottom:3px solid #f97316;">
+        <div style="display:flex;gap:5px;margin-bottom:6px;">
+          <span style="background:#431407;color:#fb923c;font-size:9px;padding:2px 7px;border-radius:10px;font-family:system-ui;">#личное</span>
+        </div>
+        <div style="font-size:15px;color:#fafaf9;font-weight:700;font-family:Georgia,serif;line-height:1.3;margin-bottom:6px;">Как я перестал бояться пустого экрана</div>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <div style="text-align:center;background:#f97316;border-radius:4px;padding:2px 5px;min-width:24px;">
+            <div style="font-size:10px;font-weight:900;color:#fff;font-family:system-ui;line-height:1;">18</div>
+            <div style="font-size:7px;color:#ffedd5;font-family:system-ui;">апр</div>
+          </div>
+          <span style="font-size:9px;color:#78716c;font-family:system-ui;">5 мин · 💬 12</span>
+        </div>
+      </div>
+      <!-- Content -->
+      <div style="background:#fafaf9;padding:14px 18px;">
+        <div style="font-size:10px;color:#44403c;font-family:Georgia,serif;line-height:1.7;">
+          Иногда лучшее, что можно сделать — это просто начать. Я долго откладывал написание этой статьи именно потому, что не знал с чего начать...
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C — С тёмной шапкой-героем</h3>
+      <p>Заголовок статьи на тёмном фоне как большой баннер, текст ниже на белом. Эффектно и узнаваемо.</p>
+    </div>
+  </div>
+
+</div>

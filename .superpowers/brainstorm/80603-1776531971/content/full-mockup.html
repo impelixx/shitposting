@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mockup — Мой блог</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: system-ui, sans-serif; background: #e7e5e4; min-height: 100vh; padding: 20px; }
+
+  .browser { max-width: 900px; margin: 0 auto; background: #fff; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 32px rgba(0,0,0,0.18); }
+
+  /* Browser chrome */
+  .browser-bar { background: #3f3f46; padding: 10px 14px; display: flex; align-items: center; gap: 10px; }
+  .dots { display: flex; gap: 6px; }
+  .dot { width: 12px; height: 12px; border-radius: 50%; }
+  .dot-r { background: #ef4444; }
+  .dot-y { background: #f59e0b; }
+  .dot-g { background: #22c55e; }
+  .url-bar { flex: 1; background: #27272a; border-radius: 6px; padding: 5px 12px; font-size: 12px; color: #a1a1aa; }
+
+  /* Tabs */
+  .tabs { display: flex; border-bottom: 2px solid #e7e5e4; }
+  .tab { padding: 8px 18px; font-size: 13px; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px; color: #78716c; }
+  .tab.active { border-bottom-color: #f97316; color: #1c1917; font-weight: 600; }
+
+  /* SITE */
+  .site-nav { background: #1c1917; padding: 14px 28px; display: flex; align-items: flex-start; justify-content: space-between; }
+  .site-logo { font-family: Georgia, serif; font-size: 22px; color: #fafaf9; font-weight: 700; line-height: 1; }
+  .site-tagline { font-size: 12px; color: #78716c; margin-top: 4px; }
+  .site-nav-links { display: flex; gap: 20px; font-size: 13px; color: #78716c; padding-top: 4px; }
+  .site-nav-links a { color: #78716c; text-decoration: none; }
+  .site-nav-links a:hover { color: #f97316; }
+
+  /* Search bar in nav */
+  .nav-search { background: #0c0a09; border-radius: 6px; padding: 7px 12px; display: flex; align-items: center; gap: 8px; margin-top: 10px; }
+  .nav-search span { color: #52525b; font-size: 13px; }
+
+  /* Body */
+  .site-body { display: flex; background: #fafaf9; min-height: 400px; }
+
+  /* Feed */
+  .feed { flex: 1; padding: 24px 28px; border-right: 1px solid #e7e5e4; }
+  .feed-title { font-size: 11px; font-weight: 700; color: #78716c; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 20px; }
+
+  .article { display: flex; flex-direction: column; gap: 8px; padding-bottom: 20px; margin-bottom: 20px; border-bottom: 1px solid #f5f5f4; }
+  .article-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+  .tag { background: #ffedd5; color: #c2410c; font-size: 11px; padding: 2px 10px; border-radius: 20px; text-decoration: none; }
+  .article-row { display: flex; gap: 14px; align-items: flex-start; }
+  .date-badge { text-align: center; background: #f97316; border-radius: 7px; padding: 6px 10px; min-width: 42px; flex-shrink: 0; }
+  .date-badge .day { font-size: 18px; font-weight: 900; color: #fff; line-height: 1; }
+  .date-badge .month { font-size: 9px; color: #ffedd5; text-transform: uppercase; margin-top: 2px; }
+  .article-title { font-family: Georgia, serif; font-size: 17px; color: #1c1917; font-weight: 700; line-height: 1.35; margin-bottom: 5px; }
+  .article-excerpt { font-family: Georgia, serif; font-size: 13px; color: #57534e; line-height: 1.6; }
+  .article-meta { font-size: 11px; color: #a8a29e; margin-top: 6px; display: flex; gap: 12px; }
+
+  /* Sidebar */
+  .sidebar { width: 220px; flex-shrink: 0; padding: 24px 18px; background: #f5f5f4; }
+  .sidebar-section { margin-bottom: 24px; }
+  .sidebar-title { font-size: 11px; font-weight: 700; color: #1c1917; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 12px; }
+  .tags-cloud { display: flex; flex-wrap: wrap; gap: 6px; }
+
+  /* Article page */
+  .article-page { padding: 40px 28px; background: #fafaf9; }
+  .article-page-inner { max-width: 640px; margin: 0 auto; }
+  .article-page-tags { display: flex; gap: 6px; margin-bottom: 16px; }
+  .article-page-header { display: flex; gap: 16px; align-items: flex-start; margin-bottom: 20px; }
+  .article-page-title { font-family: Georgia, serif; font-size: 26px; color: #1c1917; font-weight: 700; line-height: 1.3; }
+  .article-page-meta { font-size: 12px; color: #a8a29e; margin-top: 8px; display: flex; gap: 14px; }
+  .article-page-divider { border: none; border-top: 1px solid #e7e5e4; margin: 20px 0; }
+  .article-page-body { font-family: Georgia, serif; font-size: 16px; color: #292524; line-height: 1.8; }
+  .article-page-body p { margin-bottom: 16px; }
+
+  /* Comments */
+  .comments { margin-top: 40px; padding-top: 24px; border-top: 2px solid #f97316; }
+  .comments-title { font-size: 15px; font-weight: 700; color: #1c1917; margin-bottom: 16px; font-family: Georgia, serif; }
+  .comment { display: flex; gap: 12px; margin-bottom: 16px; }
+  .comment-avatar { width: 32px; height: 32px; border-radius: 50%; background: #f97316; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: #fff; }
+  .comment-body { flex: 1; background: #f5f5f4; border-radius: 8px; padding: 10px 14px; }
+  .comment-author { font-size: 12px; font-weight: 600; color: #1c1917; margin-bottom: 4px; }
+  .comment-text { font-size: 13px; color: #57534e; line-height: 1.5; }
+  .comment-input { display: flex; gap: 10px; margin-top: 16px; }
+  .comment-input input { flex: 1; background: #f5f5f4; border: 1px solid #e7e5e4; border-radius: 8px; padding: 10px 14px; font-size: 13px; color: #1c1917; outline: none; }
+  .comment-input button { background: #f97316; color: #fff; border: none; border-radius: 8px; padding: 10px 16px; font-size: 13px; font-weight: 600; cursor: pointer; }
+
+  .hidden { display: none; }
+</style>
+</head>
+<body>
+
+<div class="browser">
+  <!-- Browser chrome -->
+  <div class="browser-bar">
+    <div class="dots">
+      <div class="dot dot-r"></div>
+      <div class="dot dot-y"></div>
+      <div class="dot dot-g"></div>
+    </div>
+    <div class="url-bar" id="url-bar">myblog.com</div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <div class="tab active" onclick="showPage('home', this)">Главная</div>
+    <div class="tab" onclick="showPage('article', this)">Статья</div>
+  </div>
+
+  <!-- HOME PAGE -->
+  <div id="page-home">
+    <div class="site-nav">
+      <div>
+        <div class="site-logo">Мой блог</div>
+        <div class="site-tagline">Пишу обо всём что приходит в голову</div>
+        <div class="nav-search">
+          <span>🔍</span>
+          <span style="color:#52525b;font-size:13px;">Поиск по статьям...</span>
+        </div>
+      </div>
+      <div class="site-nav-links">
+        <a href="#">Статьи</a>
+        <a href="#">Теги</a>
+        <a href="#">О блоге</a>
+      </div>
+    </div>
+
+    <div class="site-body">
+      <div class="feed">
+        <div class="feed-title">Последние статьи</div>
+
+        <div class="article">
+          <div class="article-tags">
+            <span class="tag">#личное</span>
+            <span class="tag">#мысли</span>
+          </div>
+          <div class="article-row">
+            <div class="date-badge">
+              <div class="day">18</div>
+              <div class="month">апр</div>
+            </div>
+            <div>
+              <div class="article-title">Как я перестал бояться пустого экрана</div>
+              <div class="article-excerpt">Иногда лучшее, что можно сделать — это просто начать. Я долго откладывал написание этой статьи именно потому, что не знал с чего начать...</div>
+              <div class="article-meta">
+                <span>5 мин чтения</span>
+                <span>💬 12 комментариев</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="article">
+          <div class="article-tags">
+            <span class="tag">#технологии</span>
+            <span class="tag">#rust</span>
+          </div>
+          <div class="article-row">
+            <div class="date-badge">
+              <div class="day">15</div>
+              <div class="month">апр</div>
+            </div>
+            <div>
+              <div class="article-title">Три месяца с Rust: честный отзыв</div>
+              <div class="article-excerpt">Сложнее чем я думал, но того стоит. Делюсь своим опытом перехода с Python на Rust и тем, что меня больше всего удивило...</div>
+              <div class="article-meta">
+                <span>8 мин чтения</span>
+                <span>💬 34 комментария</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="article" style="border-bottom:none;margin-bottom:0;padding-bottom:0;">
+          <div class="article-tags">
+            <span class="tag">#книги</span>
+          </div>
+          <div class="article-row">
+            <div class="date-badge">
+              <div class="day">02</div>
+              <div class="month">апр</div>
+            </div>
+            <div>
+              <div class="article-title">Книги марта: что прочитал и что думаю</div>
+              <div class="article-excerpt">Пять книг, три из которых советую абсолютно всем. Одну советую выбросить. Разбираю каждую по-честному...</div>
+              <div class="article-meta">
+                <span>6 мин чтения</span>
+                <span>💬 7 комментариев</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sidebar">
+        <div class="sidebar-section">
+          <div class="sidebar-title">Теги</div>
+          <div class="tags-cloud">
+            <span class="tag">#личное</span>
+            <span class="tag">#технологии</span>
+            <span class="tag">#rust</span>
+            <span class="tag">#книги</span>
+            <span class="tag">#мысли</span>
+            <span class="tag">#жизнь</span>
+            <span class="tag">#инструменты</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ARTICLE PAGE -->
+  <div id="page-article" class="hidden">
+    <div class="site-nav">
+      <div>
+        <div class="site-logo">Мой блог</div>
+        <div class="site-tagline">Пишу обо всём что приходит в голову</div>
+      </div>
+      <div class="site-nav-links">
+        <a href="#">← Все статьи</a>
+        <a href="#">Теги</a>
+        <a href="#">О блоге</a>
+      </div>
+    </div>
+
+    <div class="article-page">
+      <div class="article-page-inner">
+        <div class="article-page-tags">
+          <span class="tag">#личное</span>
+          <span class="tag">#мысли</span>
+        </div>
+        <div class="article-page-header">
+          <div class="date-badge">
+            <div class="day">18</div>
+            <div class="month">апр</div>
+          </div>
+          <div>
+            <div class="article-page-title">Как я перестал бояться пустого экрана</div>
+            <div class="article-page-meta">
+              <span>5 мин чтения</span>
+              <span>💬 12 комментариев</span>
+            </div>
+          </div>
+        </div>
+        <hr class="article-page-divider">
+        <div class="article-page-body">
+          <p>Иногда лучшее, что можно сделать — это просто начать. Я долго откладывал написание этой статьи именно потому, что не знал с чего начать. Потом понял — это и есть тема.</p>
+          <p>Пустой экран — это не враг. Это просто пространство, которое ждёт. Проблема не в экране, а в том, что мы хотим сразу написать что-то идеальное. Но идеального первого черновика не бывает.</p>
+          <p>Я начал писать ежедневно — по 200 слов в день. Без редактирования, без перечитывания. Просто 200 слов и закрываю файл. Через месяц страх исчез. Появилась привычка.</p>
+        </div>
+
+        <div class="comments">
+          <div class="comments-title">Комментарии (12)</div>
+          <div class="comment">
+            <div class="comment-avatar">М</div>
+            <div class="comment-body">
+              <div class="comment-author">Михаил</div>
+              <div class="comment-text">Именно с этим и борюсь сейчас. Спасибо, помогло переосмыслить подход.</div>
+            </div>
+          </div>
+          <div class="comment">
+            <div class="comment-avatar">А</div>
+            <div class="comment-body">
+              <div class="comment-author">Аня</div>
+              <div class="comment-text">200 слов в день — звучит реально. Попробую!</div>
+            </div>
+          </div>
+          <div class="comment-input">
+            <input placeholder="Написать комментарий...">
+            <button>Отправить</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function showPage(page, tab) {
+  document.getElementById('page-home').classList.add('hidden');
+  document.getElementById('page-article').classList.add('hidden');
+  document.getElementById('page-' + page).classList.remove('hidden');
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  tab.classList.add('active');
+  document.getElementById('url-bar').textContent = page === 'home' ? 'myblog.com' : 'myblog.com/posts/pustoy-ekran';
+}
+</script>
+
+</body>
+</html>
