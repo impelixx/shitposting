@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
-	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -15,10 +14,10 @@ import (
 )
 
 func TestAuthHandler_Login_Success(t *testing.T) {
-	os.Setenv("JWT_SECRET", "test-secret")
-	os.Setenv("ADMIN_USERNAME", "admin")
-	os.Setenv("ADMIN_PASSWORD", "password")
-	os.Setenv("DATABASE_URL", "postgres://localhost/test")
+	t.Setenv("JWT_SECRET", "test-secret")
+	t.Setenv("ADMIN_USERNAME", "admin")
+	t.Setenv("ADMIN_PASSWORD", "password")
+	t.Setenv("DATABASE_URL", "postgres://localhost/test")
 	cfg := config.Load()
 
 	h := handler.NewAuthHandler(cfg)
@@ -36,10 +35,10 @@ func TestAuthHandler_Login_Success(t *testing.T) {
 }
 
 func TestAuthHandler_Login_WrongPassword(t *testing.T) {
-	os.Setenv("JWT_SECRET", "test-secret")
-	os.Setenv("ADMIN_USERNAME", "admin")
-	os.Setenv("ADMIN_PASSWORD", "password")
-	os.Setenv("DATABASE_URL", "postgres://localhost/test")
+	t.Setenv("JWT_SECRET", "test-secret")
+	t.Setenv("ADMIN_USERNAME", "admin")
+	t.Setenv("ADMIN_PASSWORD", "password")
+	t.Setenv("DATABASE_URL", "postgres://localhost/test")
 	cfg := config.Load()
 
 	h := handler.NewAuthHandler(cfg)
