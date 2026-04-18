@@ -1,23 +1,33 @@
 package main
 
 import (
+	"context"
 	"log"
 	"net/http"
-	"os"
 
 	"github.com/joho/godotenv"
+	"github.com/impelix/blogik-backend/internal/config"
+	"github.com/impelix/blogik-backend/internal/db"
 )
 
 func main() {
-	if err := godotenv.Load(); err != nil {
-		log.Println("no .env file, reading from environment")
+	_ = godotenv.Load()
+	cfg := config.Load()
+	ctx := context.Background()
+
+	pool, err := db.NewPool(ctx, cfg.DatabaseURL)
+	if err != nil {
+		log.Fatalf("db connect: %v", err)
 	}
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = "8080"
+	defer pool.Close()
+
+	if err := db.RunMigrations(pool); err != nil {
+		log.Fatalf("migrations: %v", err)
 	}
-	log.Printf("server starting on :%s", port)
-	if err := http.ListenAndServe(":"+port, nil); err != nil {
+	log.Println("migrations ok")
+
+	log.Printf("server starting on :%s", cfg.Port)
+	if err := http.ListenAndServe(":"+cfg.Port, nil); err != nil {
 		log.Fatal(err)
 	}
 }
