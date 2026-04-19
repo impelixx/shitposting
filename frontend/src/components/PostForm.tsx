@@ -121,6 +121,15 @@ export function PostForm({ initialPost }: Props) {
   const [coverDragging, setCoverDragging] = useState(false);
   const [error, setError] = useState("");
   const [activeTab, setActiveTab] = useState<TabKey>("split");
+  const [langPickerOpen, setLangPickerOpen] = useState(false);
+
+  // ── close lang picker on outside click ──
+  useEffect(() => {
+    if (!langPickerOpen) return;
+    const close = () => setLangPickerOpen(false);
+    document.addEventListener("mousedown", close);
+    return () => document.removeEventListener("mousedown", close);
+  }, [langPickerOpen]);
 
   // ── load existing tags ──
   useEffect(() => {
@@ -920,12 +929,57 @@ export function PostForm({ initialPost }: Props) {
             >
               ≡
             </ToolbarButton>
-            <ToolbarButton
-              title="Code block"
-              onClick={() => wrapSelection("\n```\n", "\n```")}
-            >
-              &#123;&#125;
-            </ToolbarButton>
+            <div style={{ position: "relative" }}>
+              <ToolbarButton
+                title="Code block"
+                onClick={() => setLangPickerOpen((v) => !v)}
+              >
+                &#123;&#125;
+              </ToolbarButton>
+              {langPickerOpen && (
+                <div
+                  style={{
+                    position: "absolute",
+                    top: "calc(100% + 4px)",
+                    left: 0,
+                    background: "var(--bg-elev)",
+                    border: "1px solid var(--border)",
+                    borderRadius: 6,
+                    zIndex: 30,
+                    minWidth: 130,
+                    boxShadow: "0 4px 16px rgba(0,0,0,0.12)",
+                    overflow: "hidden",
+                  }}
+                >
+                  {["", "javascript", "typescript", "python", "go", "rust", "bash", "sql", "json", "html", "css", "cpp", "java"].map((lang) => (
+                    <button
+                      key={lang}
+                      type="button"
+                      onMouseDown={(e) => {
+                        e.preventDefault();
+                        wrapSelection(`\n\`\`\`${lang}\n`, "\n```\n");
+                        setLangPickerOpen(false);
+                      }}
+                      style={{
+                        display: "block",
+                        width: "100%",
+                        textAlign: "left",
+                        padding: "7px 12px",
+                        background: "transparent",
+                        border: "none",
+                        borderBottom: "1px solid var(--border)",
+                        fontSize: 12,
+                        fontFamily: "var(--font-mono)",
+                        color: lang ? "var(--fg)" : "var(--fg-faint)",
+                        cursor: "pointer",
+                      }}
+                    >
+                      {lang || "без языка"}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
             <ToolbarButton
               title="Image"
               onClick={() => wrapSelection("![", "](url)")}
