@@ -11,7 +11,7 @@ export function Navbar({ children }: Props) {
       <div style={{ maxWidth: 1200, margin: "0 auto" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
           <Link href="/" style={{ display: "flex", gap: 10, alignItems: "baseline" }}>
-            <span style={{ fontSize: 18 }}>🌱</span>
+            <span style={{ fontSize: 18 }}>🏝️</span>
             <span style={{ fontFamily: "var(--font-mono)", fontWeight: 700, fontSize: 18, color: "var(--fg-dark)" }}>
               impelix blog
             </span>
