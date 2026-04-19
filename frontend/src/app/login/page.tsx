@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "@/lib/api";
 import { auth } from "@/lib/auth";
+import { Navbar } from "@/components/Navbar";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -27,6 +28,8 @@ export default function LoginPage() {
   };
 
   return (
+    <>
+    <Navbar />
     <div className="max-w-sm mx-auto px-6 py-16">
       <h1 className="font-serif text-2xl font-bold text-stone-900 mb-8">Вход</h1>
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -53,5 +56,6 @@ export default function LoginPage() {
         </button>
       </form>
     </div>
+    </>
   );
 }

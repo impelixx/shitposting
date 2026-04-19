@@ -5,6 +5,7 @@ import Link from "next/link";
 import { api } from "@/lib/api";
 import { auth } from "@/lib/auth";
 import { Post } from "@/lib/types";
+import { Navbar } from "@/components/Navbar";
 
 export default function AdminPage() {
   const router = useRouter();
@@ -24,6 +25,8 @@ export default function AdminPage() {
   };
 
   return (
+    <>
+    <Navbar />
     <div className="max-w-3xl mx-auto px-6 py-8">
       <div className="flex items-center justify-between mb-6">
         <h1 className="font-serif text-2xl font-bold text-stone-900">Все статьи</h1>
@@ -48,5 +51,6 @@ export default function AdminPage() {
         ))}
       </ul>
     </div>
+    </>
   );
 }

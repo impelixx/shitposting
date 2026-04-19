@@ -23,7 +23,7 @@ export function SearchBar() {
   }, []);
 
   return (
-    <div style={{ position: "relative", marginTop: "10px" }}>
+    <div style={{ position: "relative", marginTop: "8px" }}>
       <div style={{
         backgroundColor: "#0c0a09",
         borderRadius: "6px",

@@ -1,4 +1,5 @@
 import { api } from "@/lib/api";
+import { Navbar } from "@/components/Navbar";
 import { PostCard } from "@/components/PostCard";
 import { Sidebar } from "@/components/Sidebar";
 import { SearchBar } from "@/components/SearchBar";
@@ -10,11 +11,9 @@ export default async function HomePage() {
 
   return (
     <>
-      <div style={{ backgroundColor: "#1c1917", padding: "0 28px 12px" }}>
-        <div style={{ maxWidth: "1024px", margin: "0 auto" }}>
-          <SearchBar />
-        </div>
-      </div>
+      <Navbar>
+        <SearchBar />
+      </Navbar>
       <div style={{ maxWidth: "1024px", margin: "0 auto", display: "flex", minHeight: "100vh" }}>
         <main style={{ flex: 1, padding: "24px 28px", borderRight: "1px solid #e7e5e4" }}>
           <h2 style={{

@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { api } from "@/lib/api";
+import { Navbar } from "@/components/Navbar";
 import { DateBadge } from "@/components/DateBadge";
 import { TagPill } from "@/components/TagPill";
 import { PostBody } from "@/components/PostBody";
@@ -30,37 +31,42 @@ export default async function ArticlePage({ params }: Props) {
   if (!post) notFound();
 
   return (
-    <div className="max-w-2xl mx-auto px-6 py-10">
-      <Link href="/" className="text-sm text-orange-500 hover:underline mb-6 block">
-        ← Все статьи
-      </Link>
+    <>
+      <Navbar />
+      <div style={{ maxWidth: "640px", margin: "0 auto", padding: "40px 24px" }}>
+        <Link href="/" style={{ fontSize: "14px", color: "#f97316", textDecoration: "none", display: "block", marginBottom: "24px" }}>
+          ← Все статьи
+        </Link>
 
-      <div className="flex gap-2 mb-4 flex-wrap">
-        {post.tags.map((t) => <TagPill key={t} tag={t} href={`/tags/${t}`} />)}
-      </div>
+        <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginBottom: "16px" }}>
+          {post.tags.map((t) => <TagPill key={t} tag={t} href={`/tags/${t}`} />)}
+        </div>
 
-      <div className="flex gap-4 items-start mb-5">
-        <DateBadge dateStr={post.created_at} />
-        <div>
-          <h1 className="font-serif text-2xl font-bold text-stone-900 leading-snug">{post.title}</h1>
-          <div className="flex gap-4 mt-2 text-xs text-stone-400">
-            <span>{Math.max(1, Math.ceil(post.body.split(/\s+/).length / 200))} мин чтения</span>
-            <span>💬 {comments.length}</span>
+        <div style={{ display: "flex", gap: "16px", alignItems: "flex-start", marginBottom: "20px" }}>
+          <DateBadge dateStr={post.created_at} />
+          <div>
+            <h1 style={{ fontFamily: "Georgia, serif", fontSize: "26px", fontWeight: 700, color: "#1c1917", lineHeight: 1.3 }}>
+              {post.title}
+            </h1>
+            <div style={{ display: "flex", gap: "14px", marginTop: "8px", fontSize: "12px", color: "#a8a29e" }}>
+              <span>{Math.max(1, Math.ceil(post.body.split(/\s+/).length / 200))} мин чтения</span>
+              <span>💬 {comments.length}</span>
+            </div>
           </div>
         </div>
+
+        <hr style={{ border: "none", borderTop: "1px solid #e7e5e4", marginBottom: "24px" }} />
+
+        <PostBody body={post.body} />
+
+        <section style={{ marginTop: "40px", paddingTop: "24px", borderTop: "2px solid #f97316" }}>
+          <h2 style={{ fontFamily: "Georgia, serif", fontSize: "15px", fontWeight: 700, color: "#1c1917", marginBottom: "16px" }}>
+            Комментарии ({comments.length})
+          </h2>
+          <CommentList comments={comments} />
+          <CommentForm slug={slug} />
+        </section>
       </div>
-
-      <hr className="border-stone-200 mb-6" />
-
-      <PostBody body={post.body} />
-
-      <section className="mt-10 pt-6 border-t-2 border-orange-500">
-        <h2 className="font-serif text-base font-bold text-stone-900 mb-4">
-          Комментарии ({comments.length})
-        </h2>
-        <CommentList comments={comments} />
-        <CommentForm slug={slug} />
-      </section>
-    </div>
+    </>
   );
 }

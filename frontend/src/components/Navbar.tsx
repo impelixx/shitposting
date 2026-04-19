@@ -1,28 +1,29 @@
 import Link from "next/link";
+import type { ReactNode } from "react";
 
-export function Navbar() {
+interface Props {
+  children?: ReactNode;
+}
+
+export function Navbar({ children }: Props) {
   return (
-    <nav style={{ backgroundColor: "#1c1917" }} className="px-7 py-3.5">
-      <div className="max-w-5xl mx-auto flex items-start justify-between">
+    <nav style={{ backgroundColor: "#1c1917", padding: "14px 28px" }}>
+      <div style={{ maxWidth: "1024px", margin: "0 auto", display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
         <div>
           <Link
             href="/"
-            style={{ fontFamily: "Georgia, serif", color: "#fafaf9" }}
-            className="text-xl font-bold leading-none"
+            style={{ fontFamily: "Georgia, serif", color: "#fafaf9", fontSize: "22px", fontWeight: 700, lineHeight: 1, textDecoration: "none", display: "block" }}
           >
             Мой блог
           </Link>
-          <p style={{ color: "#78716c" }} className="text-xs mt-1">
+          <p style={{ color: "#78716c", fontSize: "12px", marginTop: "4px" }}>
             Пишу обо всём что приходит в голову
           </p>
+          {children}
         </div>
-        <div className="flex gap-5 text-sm pt-1" style={{ color: "#78716c" }}>
-          <Link href="/" className="hover:text-orange-500 transition-colors">
-            Статьи
-          </Link>
-          <Link href="/about" className="hover:text-orange-500 transition-colors">
-            О блоге
-          </Link>
+        <div style={{ display: "flex", gap: "20px", fontSize: "13px", color: "#78716c", paddingTop: "4px" }}>
+          <Link href="/" style={{ color: "#78716c", textDecoration: "none" }} className="hover:text-orange-500 transition-colors">Статьи</Link>
+          <Link href="/about" style={{ color: "#78716c", textDecoration: "none" }} className="hover:text-orange-500 transition-colors">О блоге</Link>
         </div>
       </div>
     </nav>
