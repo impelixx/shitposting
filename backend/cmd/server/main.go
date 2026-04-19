@@ -37,6 +37,35 @@ func main() {
 	tagRepo := repository.NewTagRepo(pool)
 
 	searchClient := search.NewClient(cfg.MeilisearchURL, cfg.MeilisearchKey)
+
+	// Index all published posts on startup so search works from day one.
+	go func() {
+		posts, err := postRepo.ListAll(ctx)
+		if err != nil {
+			log.Printf("reindex: list posts: %v", err)
+			return
+		}
+		indexed := 0
+		for _, p := range posts {
+			if !p.Published {
+				continue
+			}
+			if err := searchClient.IndexPost(search.PostDocument{
+				ID:      p.ID,
+				Title:   p.Title,
+				Excerpt: p.Excerpt,
+				Body:    p.Body,
+				Slug:    p.Slug,
+				Tags:    p.Tags,
+			}); err != nil {
+				log.Printf("reindex: %s: %v", p.Slug, err)
+			} else {
+				indexed++
+			}
+		}
+		log.Printf("reindex: indexed %d posts", indexed)
+	}()
+
 	r2, err := storage.NewR2Client(cfg.R2AccountID, cfg.R2AccessKeyID, cfg.R2SecretAccessKey, cfg.R2Bucket, cfg.R2PublicURL)
 	if err != nil {
 		log.Fatalf("r2: %v", err)

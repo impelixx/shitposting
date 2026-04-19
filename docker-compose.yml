@@ -31,6 +31,9 @@ services:
       - "8080:8080"
     env_file:
       - ./backend/.env
+    environment:
+      MEILISEARCH_URL: http://meilisearch:7700
+      MEILISEARCH_KEY: masterKey
     depends_on:
       db:
         condition: service_healthy
