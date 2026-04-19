@@ -48,7 +48,7 @@ export function PostForm({ initialPost }: Props) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4 max-w-3xl mx-auto px-6 py-8">
-      <h1 className="font-serif text-2xl font-bold text-stone-900 mb-4">
+      <h1 className="text-2xl font-bold mb-4" style={{ color: "#1c1917" }}>
         {initialPost ? "Редактировать" : "Новая статья"}
       </h1>
       {error && <p className="text-red-500 text-sm">{error}</p>}

@@ -1,8 +1,7 @@
 @import "tailwindcss";
 
 @theme {
-  --font-serif: Georgia, "Times New Roman", serif;
-  --font-sans: system-ui, sans-serif;
+  --font-mono: ui-monospace, "Cascadia Code", "Source Code Pro", Menlo, Consolas, monospace;
 
   /* Цветовая схема Sunset */
   --color-blog-header: #1c1917;
@@ -20,6 +19,6 @@
   body {
     background-color: #fafaf9;
     color: #1c1917;
-    font-family: system-ui, sans-serif;
+    font-family: ui-monospace, "Cascadia Code", "Source Code Pro", Menlo, Consolas, monospace;
   }
 }

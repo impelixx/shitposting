@@ -45,7 +45,7 @@ export default async function ArticlePage({ params }: Props) {
         <div style={{ display: "flex", gap: "16px", alignItems: "flex-start", marginBottom: "20px" }}>
           <DateBadge dateStr={post.created_at} />
           <div>
-            <h1 style={{ fontFamily: "Georgia, serif", fontSize: "26px", fontWeight: 700, color: "#1c1917", lineHeight: 1.3 }}>
+            <h1 style={{ fontSize: "26px", fontWeight: 700, color: "#1c1917", lineHeight: 1.3 }}>
               {post.title}
             </h1>
             <div style={{ display: "flex", gap: "14px", marginTop: "8px", fontSize: "12px", color: "#a8a29e" }}>
@@ -60,7 +60,7 @@ export default async function ArticlePage({ params }: Props) {
         <PostBody body={post.body} />
 
         <section style={{ marginTop: "40px", paddingTop: "24px", borderTop: "2px solid #f97316" }}>
-          <h2 style={{ fontFamily: "Georgia, serif", fontSize: "15px", fontWeight: 700, color: "#1c1917", marginBottom: "16px" }}>
+          <h2 style={{ fontSize: "15px", fontWeight: 700, color: "#1c1917", marginBottom: "16px" }}>
             Комментарии ({comments.length})
           </h2>
           <CommentList comments={comments} />

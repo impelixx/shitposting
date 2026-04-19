@@ -39,7 +39,7 @@ export function PostCard({ post, commentCount = 0 }: Props) {
           >
             {post.title}
           </Link>
-          <p style={{ fontFamily: "Georgia, serif", fontSize: "13px", color: "#57534e", lineHeight: 1.6 }}>
+          <p style={{ fontSize: "13px", color: "#57534e", lineHeight: 1.6 }}>
             {post.excerpt}
           </p>
           <div style={{ display: "flex", gap: "12px", marginTop: "6px", fontSize: "11px", color: "#a8a29e" }}>

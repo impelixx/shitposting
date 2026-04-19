@@ -29,7 +29,7 @@ export default function AdminPage() {
     <Navbar />
     <div className="max-w-3xl mx-auto px-6 py-8">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="font-serif text-2xl font-bold text-stone-900">Все статьи</h1>
+        <h1 className="text-2xl font-bold" style={{ color: "#1c1917" }}>Все статьи</h1>
         <Link href="/admin/posts/new" className="bg-orange-500 text-white text-sm font-semibold px-4 py-2 rounded-lg hover:bg-orange-600 transition-colors">
           + Новая статья
         </Link>

@@ -31,7 +31,7 @@ export default function LoginPage() {
     <>
     <Navbar />
     <div className="max-w-sm mx-auto px-6 py-16">
-      <h1 className="font-serif text-2xl font-bold text-stone-900 mb-8">Вход</h1>
+      <h1 className="text-2xl font-bold mb-8" style={{ color: "#1c1917" }}>Вход</h1>
       <form onSubmit={handleSubmit} className="space-y-4">
         {error && <p className="text-red-500 text-sm">{error}</p>}
         <input
