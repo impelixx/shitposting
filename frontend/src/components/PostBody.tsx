@@ -40,16 +40,31 @@ export function PostBody({ body }: { body: string }) {
           font-size: 14px !important;
         }
         .post-body .wmde-markdown pre {
-          background: var(--bg-dark, oklch(0.18 0.012 60)) !important;
-          border-radius: 8px !important;
-          padding: 20px !important;
+          background: oklch(0.24 0.028 55) !important;
+          border-radius: 10px !important;
+          padding: 20px 24px !important;
+          border: 1px solid oklch(0.32 0.03 55) !important;
+          position: relative !important;
+          overflow: auto !important;
         }
         .post-body .wmde-markdown pre code {
           background: transparent !important;
-          color: oklch(0.94 0.008 80) !important;
+          color: oklch(0.93 0.018 75) !important;
           font-size: 14px !important;
           padding: 0 !important;
+          font-family: var(--font-mono) !important;
+          line-height: 1.7 !important;
         }
+        /* syntax tokens — warm palette */
+        .post-body .token.comment,.post-body .token.prolog { color: oklch(0.58 0.025 55); font-style: italic; }
+        .post-body .token.string,.post-body .token.char,.post-body .token.inserted { color: oklch(0.75 0.14 140); }
+        .post-body .token.number,.post-body .token.boolean { color: oklch(0.72 0.15 50); }
+        .post-body .token.keyword,.post-body .token.attr-value { color: oklch(0.72 0.16 265); }
+        .post-body .token.function,.post-body .token.class-name { color: oklch(0.76 0.16 55); }
+        .post-body .token.operator,.post-body .token.punctuation { color: oklch(0.72 0.02 65); }
+        .post-body .token.property,.post-body .token.tag { color: oklch(0.68 0.18 25); }
+        .post-body .token.attr-name,.post-body .token.selector { color: oklch(0.74 0.12 85); }
+        .post-body .token.variable,.post-body .token.regex { color: oklch(0.78 0.14 75); }
         .post-body .wmde-markdown blockquote {
           border-left: 3px solid var(--accent) !important;
           color: var(--fg-mute) !important;

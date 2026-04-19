@@ -149,33 +149,32 @@ export function PostForm({ initialPost }: Props) {
     }
   };
 
-  // ── upload image and insert markdown at captured position ──
-  const uploadAndInsert = async (file: File, insertAt: number) => {
-    if (!token) return;
-    setBodyUploading(true);
-    try {
-      const form = new FormData();
-      form.append("file", file);
-      const res = await fetch(`${BASE}/api/upload`, {
-        method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
-        body: form,
-      });
-      if (!res.ok) throw new Error(`upload ${res.status}`);
-      const { url } = await res.json();
-      const snippet = `\n![](${url})\n`;
+  // ── drop image: instant blob preview → upload → replace URL ──
+  const dropImages = async (files: File[], insertAt: number) => {
+    for (const file of files) {
+      // 1. show instantly via blob URL
+      const blobUrl = URL.createObjectURL(file);
+      const snippet = `\n![](${blobUrl})\n`;
       setBody((prev) => prev.slice(0, insertAt) + snippet + prev.slice(insertAt));
-      const newPos = insertAt + snippet.length;
-      setTimeout(() => {
-        const ta = taRef.current;
-        if (!ta) return;
-        ta.focus();
-        ta.setSelectionRange(newPos, newPos);
-      }, 0);
-    } catch (err) {
-      setError(`Ошибка загрузки: ${err instanceof Error ? err.message : "неизвестная ошибка"}`);
-    } finally {
-      setBodyUploading(false);
+
+      if (!token) continue;
+      // 2. upload in background
+      try {
+        const form = new FormData();
+        form.append("file", file);
+        const res = await fetch(`${BASE}/api/upload`, {
+          method: "POST",
+          headers: { Authorization: `Bearer ${token}` },
+          body: form,
+        });
+        if (!res.ok) throw new Error(`${res.status}`);
+        const { url } = await res.json();
+        // 3. swap blob URL for real URL
+        setBody((prev) => prev.replace(blobUrl, url));
+        URL.revokeObjectURL(blobUrl);
+      } catch (err) {
+        setError(`Ошибка загрузки: ${err instanceof Error ? err.message : String(err)}`);
+      }
     }
   };
 
@@ -184,20 +183,28 @@ export function PostForm({ initialPost }: Props) {
     handleCoverUploadRef.current = handleCoverUpload;
   });
 
+  const dropImagesRef = useRef(dropImages);
+  useEffect(() => { dropImagesRef.current = dropImages; });
+
   // ── paste listener ──
   useEffect(() => {
     if (!token) return;
     const handlePaste = async (e: ClipboardEvent) => {
-      const target = e.target as HTMLElement;
-      // skip when inside the markdown textarea editor
-      if (target.closest("textarea") === taRef.current) return;
       const items = Array.from(e.clipboardData?.items ?? []);
       const imageItem = items.find((it) => it.type.startsWith("image/"));
       if (!imageItem) return;
       e.preventDefault();
       const file = imageItem.getAsFile();
       if (!file) return;
-      await handleCoverUploadRef.current(file);
+      const target = e.target as HTMLElement;
+      if (target.closest("textarea") === taRef.current) {
+        // paste inside editor → insert at cursor with instant preview
+        const insertAt = taRef.current?.selectionStart ?? 0;
+        await dropImagesRef.current([file], insertAt);
+      } else {
+        // paste anywhere else → set as cover
+        await handleCoverUploadRef.current(file);
+      }
     };
     document.addEventListener("paste", handlePaste);
     return () => document.removeEventListener("paste", handlePaste);
@@ -963,13 +970,12 @@ export function PostForm({ initialPost }: Props) {
                     e.preventDefault();
                     e.stopPropagation();
                     setEditorDragging(false);
-                    // selectionStart now reflects the exact visual drop position
-                    // because we focused the textarea on dragenter
-                    const insertAt = taRef.current?.selectionStart ?? body.length;
-                    const files = Array.from(e.dataTransfer.files).filter((f) =>
+                    const imgs = Array.from(e.dataTransfer.files).filter((f) =>
                       f.type.startsWith("image/")
                     );
-                    for (const file of files) await uploadAndInsert(file, insertAt);
+                    if (!imgs.length) return;
+                    const insertAt = taRef.current?.selectionStart ?? body.length;
+                    await dropImages(imgs, insertAt);
                   }}
                   style={{
                     flex: 1,
