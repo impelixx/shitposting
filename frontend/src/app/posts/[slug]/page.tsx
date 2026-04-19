@@ -69,42 +69,50 @@ export default async function ArticlePage({ params }: Props) {
           />
           <div style={{
             position: "absolute", inset: 0,
-            background: "linear-gradient(to bottom, transparent 40%, rgba(250,250,249,0.95) 100%)",
+            background: "linear-gradient(to bottom, transparent 40%, oklch(0.985 0.008 80 / 0.95) 100%)",
           }} />
         </div>
       )}
 
-      <div style={{ maxWidth: "640px", margin: "0 auto", padding: post.cover_image ? "0 24px 40px" : "40px 24px" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px", marginTop: post.cover_image ? "0" : undefined }}>
-          <Link href="/" style={{ fontSize: "14px", color: "#f97316", textDecoration: "none" }}>
-            ← Все статьи
+      <div style={{ maxWidth: 680, margin: "0 auto", padding: post.cover_image ? "0 24px 64px" : "40px 24px 64px" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
+          <Link href="/" style={{ fontSize: 13, color: "var(--accent)", fontFamily: "var(--font-mono)" }}>
+            ← все статьи
           </Link>
           <ShareButton slug={post.slug} />
         </div>
 
-        <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginBottom: "16px" }}>
-          {post.tags.map((t) => <TagPill key={t} tag={t} href={`/tags/${t}`} />)}
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 16 }}>
+          {post.tags.map((t, i) => <TagPill key={t} tag={t} href={`/tags/${t}`} variant={i % 2 === 1 ? "amber" : "orange"} />)}
         </div>
 
-        <div style={{ display: "flex", gap: "16px", alignItems: "flex-start", marginBottom: "20px" }}>
-          <DateBadge dateStr={post.created_at} />
+        <div style={{ display: "flex", gap: 16, alignItems: "flex-start", marginBottom: 20 }}>
+          <DateBadge dateStr={post.created_at} size="lg" />
           <div>
-            <h1 style={{ fontSize: "26px", fontWeight: 700, color: "#1c1917", lineHeight: 1.3 }}>
+            <h1 style={{
+              fontSize: 30,
+              fontWeight: 600,
+              fontFamily: "var(--font-serif)",
+              color: "var(--fg)",
+              lineHeight: 1.2,
+              letterSpacing: "-0.02em",
+              margin: 0,
+            }}>
               {post.title}
             </h1>
-            <div style={{ display: "flex", gap: "14px", marginTop: "8px", fontSize: "12px", color: "#a8a29e" }}>
+            <div style={{ display: "flex", gap: 14, marginTop: 8, fontSize: 12, color: "var(--fg-faint)", fontFamily: "var(--font-mono)" }}>
               <span>{Math.max(1, Math.ceil(post.body.split(/\s+/).length / 200))} мин чтения</span>
               <span>💬 {comments.length}</span>
             </div>
           </div>
         </div>
 
-        <hr style={{ border: "none", borderTop: "1px solid #e7e5e4", marginBottom: "24px" }} />
+        <hr style={{ border: "none", borderTop: "1px solid var(--border)", marginBottom: 24 }} />
 
         <PostBody body={post.body} />
 
-        <section style={{ marginTop: "40px", paddingTop: "24px", borderTop: "2px solid #f97316" }}>
-          <h2 style={{ fontSize: "15px", fontWeight: 700, color: "#1c1917", marginBottom: "16px" }}>
+        <section style={{ marginTop: 48, paddingTop: 24, borderTop: "2px solid var(--accent)" }}>
+          <h2 style={{ fontSize: 14, fontWeight: 700, color: "var(--fg)", marginBottom: 16, fontFamily: "var(--font-sans)", textTransform: "uppercase", letterSpacing: "0.08em" }}>
             Комментарии ({comments.length})
           </h2>
           <CommentList comments={comments} />

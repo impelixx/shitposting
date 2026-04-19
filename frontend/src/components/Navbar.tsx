@@ -7,61 +7,25 @@ interface Props {
 
 export function Navbar({ children }: Props) {
   return (
-    <nav style={{ backgroundColor: "#1c1917", padding: "14px 28px" }}>
-      <div
-        style={{
-          maxWidth: "1024px",
-          margin: "0 auto",
-          display: "flex",
-          alignItems: "flex-start",
-          justifyContent: "space-between",
-        }}
-      >
-        <div>
-          <Link
-            href="/"
-            style={{
-              fontFamily: "Georgia, serif",
-              color: "#fafaf9",
-              fontSize: "22px",
-              fontWeight: 700,
-              lineHeight: 1,
-              textDecoration: "none",
-              display: "block",
-            }}
-          >
-            🏝️ impelix blog
+    <header style={{ background: "var(--bg-dark)", color: "var(--fg-dark)", padding: "20px 32px 24px" }}>
+      <div style={{ maxWidth: 1200, margin: "0 auto" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
+          <Link href="/" style={{ display: "flex", gap: 10, alignItems: "baseline" }}>
+            <span style={{ fontSize: 18 }}>🌱</span>
+            <span style={{ fontFamily: "var(--font-mono)", fontWeight: 700, fontSize: 18, color: "var(--fg-dark)" }}>
+              impelix blog
+            </span>
           </Link>
-          <p style={{ color: "#78716c", fontSize: "12px", marginTop: "4px" }}>
-            То, что не поместилось в канал знатока, но написать надо
-          </p>
-          {children}
+          <nav style={{ display: "flex", gap: 20, fontSize: 13, color: "var(--fg-dark-mute)" }}>
+            <Link href="/" style={{ color: "var(--fg-dark)" }}>Статьи</Link>
+            <Link href="/about" style={{ color: "var(--fg-dark-mute)" }}>О блоге</Link>
+          </nav>
         </div>
-        <div
-          style={{
-            display: "flex",
-            gap: "20px",
-            fontSize: "13px",
-            color: "#78716c",
-            paddingTop: "4px",
-          }}
-        >
-          <Link
-            href="/"
-            style={{ color: "#78716c", textDecoration: "none" }}
-            className="hover:text-orange-500 transition-colors"
-          >
-            Статьи
-          </Link>
-          <Link
-            href="/about"
-            style={{ color: "#78716c", textDecoration: "none" }}
-            className="hover:text-orange-500 transition-colors"
-          >
-            О блоге
-          </Link>
+        <div style={{ fontSize: 12, color: "var(--fg-dark-mute)", marginTop: 4, marginLeft: 28 }}>
+          То, что не поместилось в канал знатока, но написать надо
         </div>
+        {children}
       </div>
-    </nav>
+    </header>
   );
 }

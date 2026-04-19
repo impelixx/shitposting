@@ -1,8 +1,6 @@
 "use client";
 import { useState } from "react";
 
-const MONO = "ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, monospace";
-
 export function ShareButton({ slug }: { slug: string }) {
   const [copied, setCopied] = useState(false);
 
@@ -18,15 +16,15 @@ export function ShareButton({ slug }: { slug: string }) {
       onClick={copy}
       style={{
         fontSize: "12px",
-        color: copied ? "#f97316" : "#a8a29e",
+        color: copied ? "var(--accent)" : "var(--fg-faint)",
         background: "none",
-        border: "1px solid #e7e5e4",
+        border: "1px solid var(--border)",
         borderRadius: "4px",
         padding: "4px 10px",
         cursor: "pointer",
-        fontFamily: MONO,
+        fontFamily: "var(--font-mono)",
         transition: "color 0.15s, border-color 0.15s",
-        borderColor: copied ? "#fed7aa" : "#e7e5e4",
+        borderColor: copied ? "var(--accent-bg)" : "var(--border)",
       }}
     >
       {copied ? "скопировано ✓" : "поделиться →"}

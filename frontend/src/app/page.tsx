@@ -3,51 +3,86 @@ import { Navbar } from "@/components/Navbar";
 import { PostCard } from "@/components/PostCard";
 import { Sidebar } from "@/components/Sidebar";
 import { SearchBar } from "@/components/SearchBar";
-import { Pagination } from "@/components/Pagination";
 
 export const revalidate = 0;
 
-const PAGE_SIZE = 10;
-
-interface Props {
-  searchParams: Promise<{ page?: string }>;
-}
-
-export default async function HomePage({ searchParams }: Props) {
-  const { page: pageStr } = await searchParams;
-  const page = Math.max(0, parseInt(pageStr ?? "0") || 0);
-
-  const raw = await api.listPosts(undefined, PAGE_SIZE + 1, page * PAGE_SIZE).catch(() => []);
-  const hasNext = raw.length > PAGE_SIZE;
-  const posts = raw.slice(0, PAGE_SIZE);
+export default async function HomePage() {
+  const posts = await api.listPosts(undefined, 50, 0).catch(() => []);
+  const featured = posts[0] ?? null;
+  const grid = posts.slice(1);
 
   return (
     <>
       <Navbar>
         <SearchBar />
       </Navbar>
-      <div style={{ maxWidth: "1024px", margin: "0 auto", display: "flex", minHeight: "100vh" }}>
-        <main style={{ flex: 1, padding: "24px 28px", borderRight: "1px solid #e7e5e4" }}>
-          <h2 style={{
-            fontSize: "11px",
-            fontWeight: 700,
-            color: "#78716c",
-            textTransform: "uppercase",
-            letterSpacing: "1.5px",
-            marginBottom: "20px",
-          }}>
-            Последние статьи
-          </h2>
-          {posts.length === 0 && (
-            <p style={{ color: "#a8a29e", fontSize: "14px" }}>Статей пока нет.</p>
+
+      <div style={{ maxWidth: 1200, margin: "0 auto", padding: "32px 32px 64px", display: "grid", gridTemplateColumns: "1fr 280px", gap: 48 }}>
+        <main>
+          {featured && (
+            <section style={{ marginBottom: 56 }}>
+              <div style={{
+                fontSize: 10,
+                textTransform: "uppercase",
+                letterSpacing: "0.12em",
+                color: "var(--fg-faint)",
+                fontWeight: 600,
+                marginBottom: 16,
+                fontFamily: "var(--font-sans)",
+              }}>
+                избранное
+              </div>
+              <PostCard post={featured} featured />
+            </section>
           )}
-          {posts.map((post) => (
-            <PostCard key={post.id} post={post} />
-          ))}
-          <Pagination page={page} hasNext={hasNext} basePath="/" />
+
+          {grid.length > 0 && (
+            <section>
+              <div style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "baseline",
+                marginBottom: 16,
+              }}>
+                <div style={{
+                  fontSize: 10,
+                  textTransform: "uppercase",
+                  letterSpacing: "0.12em",
+                  color: "var(--fg-faint)",
+                  fontWeight: 600,
+                  fontFamily: "var(--font-sans)",
+                }}>
+                  последние статьи
+                </div>
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "40px 28px" }}>
+                {grid.map((post) => (
+                  <PostCard key={post.id} post={post} />
+                ))}
+              </div>
+            </section>
+          )}
+
+          {posts.length === 0 && (
+            <p style={{ color: "var(--fg-faint)", fontSize: 14, fontFamily: "var(--font-mono)" }}>
+              {"// статей пока нет"}
+            </p>
+          )}
         </main>
+
         <Sidebar />
       </div>
+
+      <footer style={{
+        borderTop: "1px solid var(--border)",
+        padding: "24px 32px",
+        fontSize: 12,
+        color: "var(--fg-faint)",
+        fontFamily: "var(--font-mono)",
+        textAlign: "center",
+      }}>
+        impelix blog · go + next.js · md в репе
+      </footer>
     </>
   );
 }

@@ -1,24 +1,34 @@
 @import "tailwindcss";
 
-@theme {
-  --font-mono: ui-monospace, "Cascadia Code", "Source Code Pro", Menlo, Consolas, monospace;
-
-  /* Цветовая схема Sunset */
-  --color-blog-header: #1c1917;
-  --color-blog-bg: #fafaf9;
-  --color-blog-sidebar: #f5f5f4;
-  --color-blog-accent: #f97316;
-  --color-blog-tag-bg: #ffedd5;
-  --color-blog-tag-text: #c2410c;
-  --color-blog-muted: #78716c;
-  --color-blog-border: #e7e5e4;
-  --color-blog-text: #1c1917;
+:root {
+  --bg: oklch(0.985 0.008 80);
+  --bg-elev: oklch(0.975 0.012 80);
+  --bg-sunken: oklch(0.96 0.014 80);
+  --border: oklch(0.9 0.012 70);
+  --border-strong: oklch(0.82 0.015 65);
+  --bg-dark: oklch(0.18 0.012 60);
+  --fg: oklch(0.22 0.012 60);
+  --fg-mute: oklch(0.45 0.015 60);
+  --fg-faint: oklch(0.62 0.012 65);
+  --fg-dark: oklch(0.94 0.008 80);
+  --fg-dark-mute: oklch(0.72 0.012 70);
+  --accent: oklch(0.7 0.18 50);
+  --accent-bg: oklch(0.93 0.06 65);
+  --amber-bg: oklch(0.94 0.07 85);
+  --rust: oklch(0.55 0.16 40);
+  --font-serif: 'Fraunces', 'Iowan Old Style', Georgia, serif;
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'SF Mono', ui-monospace, Menlo, monospace;
 }
+
+* { box-sizing: border-box; }
 
 @layer base {
   body {
-    background-color: #fafaf9;
-    color: #1c1917;
-    font-family: ui-monospace, "Cascadia Code", "Source Code Pro", Menlo, Consolas, monospace;
+    background-color: var(--bg);
+    color: var(--fg);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
   }
+  a { color: inherit; text-decoration: none; }
 }

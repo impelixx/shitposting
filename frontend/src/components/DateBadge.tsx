@@ -1,25 +1,31 @@
 interface Props {
   dateStr: string;
+  size?: "md" | "lg";
 }
 
-export function DateBadge({ dateStr }: Props) {
+export function DateBadge({ dateStr, size = "md" }: Props) {
   const d = new Date(dateStr);
-  const day = d.getDate().toString().padStart(2, "0");
-  const month = d.toLocaleString("ru-RU", { month: "short" });
+  const day = d.getDate().toString();
+  const month = d.toLocaleString("ru-RU", { month: "short" }).replace(".", "");
+  const sz = size === "lg" ? 64 : 48;
+  const daySz = size === "lg" ? 26 : 20;
+
   return (
     <div style={{
+      background: "var(--accent)",
+      color: "white",
+      textAlign: "center",
+      borderRadius: 6,
       display: "flex",
       flexDirection: "column",
+      justifyContent: "center",
       alignItems: "center",
-      backgroundColor: "#f97316",
-      borderRadius: "7px",
-      padding: "6px 10px",
-      minWidth: "42px",
       flexShrink: 0,
-      textAlign: "center",
+      width: sz,
+      height: sz,
     }}>
-      <span style={{ fontSize: "18px", fontWeight: 900, color: "#fff", lineHeight: 1 }}>{day}</span>
-      <span style={{ fontSize: "9px", color: "#ffedd5", textTransform: "uppercase", marginTop: "2px" }}>{month}</span>
+      <span style={{ fontSize: daySz, fontWeight: 700, lineHeight: 1, fontFamily: "var(--font-sans)" }}>{day}</span>
+      <span style={{ fontSize: 9, textTransform: "lowercase", opacity: 0.85, marginTop: 2, fontFamily: "var(--font-sans)" }}>{month}</span>
     </div>
   );
 }

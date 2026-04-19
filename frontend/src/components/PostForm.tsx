@@ -7,24 +7,24 @@ import { auth } from "@/lib/auth";
 import { Post } from "@/lib/types";
 import { MarkdownEditor } from "./MarkdownEditor";
 
-const MONO = "ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, monospace";
+const MONO = "var(--font-mono)";
 const BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
 
 const fieldStyle: React.CSSProperties = {
-  border: "1px solid #e7e5e4",
+  border: "1px solid var(--border)",
   borderRadius: "6px",
   padding: "6px 10px",
   fontSize: "12px",
   fontFamily: MONO,
-  background: "#fff",
-  color: "#1c1917",
+  background: "var(--bg)",
+  color: "var(--fg)",
   outline: "none",
   width: "100%",
 };
 
 const labelStyle: React.CSSProperties = {
   fontSize: "10px",
-  color: "#78716c",
+  color: "var(--fg-faint)",
   textTransform: "uppercase",
   letterSpacing: "1px",
   marginBottom: "4px",
@@ -122,12 +122,12 @@ export function PostForm({ initialPost }: Props) {
   return (
     <form
       onSubmit={handleSubmit}
-      style={{ display: "flex", flexDirection: "column", minHeight: "100vh", background: "#fafaf9", fontFamily: MONO }}
+      style={{ display: "flex", flexDirection: "column", minHeight: "100vh", background: "var(--bg)", fontFamily: MONO }}
     >
       {/* Sticky top bar */}
       <div style={{
-        background: "#1c1917",
-        borderBottom: "1px solid #44403c",
+        background: "var(--bg-dark, oklch(0.18 0.012 60))",
+        borderBottom: "1px solid oklch(0.3 0.015 60)",
         padding: "0 24px",
         height: "52px",
         display: "flex",
@@ -137,11 +137,11 @@ export function PostForm({ initialPost }: Props) {
         top: 0,
         zIndex: 10,
       }}>
-        <Link href="/admin" style={{ color: "#78716c", fontSize: "12px", textDecoration: "none", flexShrink: 0 }}>
+        <Link href="/admin" style={{ color: "var(--fg-dark-mute)", fontSize: "12px", textDecoration: "none", flexShrink: 0 }}>
           ← назад
         </Link>
-        <span style={{ color: "#44403c", fontSize: "12px" }}>|</span>
-        <span style={{ color: "#57534e", fontSize: "12px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+        <span style={{ color: "var(--fg-dark-mute)", fontSize: "12px" }}>|</span>
+        <span style={{ color: "var(--fg-dark-mute)", fontSize: "12px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
           {initialPost ? `admin / posts / ${initialPost.slug} / edit` : "admin / posts / new"}
         </span>
         <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: "16px", flexShrink: 0 }}>
@@ -151,7 +151,7 @@ export function PostForm({ initialPost }: Props) {
               type="checkbox"
               checked={published}
               onChange={(e) => setPublished(e.target.checked)}
-              style={{ accentColor: "#f97316", cursor: "pointer" }}
+              style={{ accentColor: "var(--accent)", cursor: "pointer" }}
             />
             опубликовать
           </label>
@@ -159,7 +159,7 @@ export function PostForm({ initialPost }: Props) {
             <Link
               href={`/r/${slug}`}
               target="_blank"
-              style={{ fontSize: "12px", color: "#78716c", textDecoration: "none", border: "1px solid #44403c", borderRadius: "4px", padding: "4px 10px" }}
+              style={{ fontSize: "12px", color: "var(--fg-dark-mute)", textDecoration: "none", border: "1px solid oklch(0.3 0.015 60)", borderRadius: "4px", padding: "4px 10px" }}
             >
               читалка ↗
             </Link>
@@ -168,7 +168,7 @@ export function PostForm({ initialPost }: Props) {
             type="submit"
             disabled={loading}
             style={{
-              background: loading ? "#57534e" : "#f97316",
+              background: loading ? "var(--fg-mute)" : "var(--accent)",
               color: "#fff",
               border: "none",
               borderRadius: "6px",
@@ -202,8 +202,8 @@ export function PostForm({ initialPost }: Props) {
           position: "relative",
           width: "100%",
           height: coverImage ? "260px" : "80px",
-          background: coverImage ? "transparent" : "#f5f5f4",
-          borderBottom: "1px solid #e7e5e4",
+          background: coverImage ? "transparent" : "var(--bg-sunken, oklch(0.96 0.014 80))",
+          borderBottom: "1px solid var(--border)",
           cursor: "pointer",
           overflow: "hidden",
           transition: "height 0.2s",
@@ -253,38 +253,38 @@ export function PostForm({ initialPost }: Props) {
           placeholder="Заголовок статьи..."
           style={{
             border: "none",
-            borderBottom: "2px solid #e7e5e4",
+            borderBottom: "2px solid var(--border)",
             background: "transparent",
             fontSize: "26px",
-            fontWeight: 700,
-            color: "#1c1917",
-            fontFamily: MONO,
+            fontWeight: 600,
+            color: "var(--fg)",
+            fontFamily: "var(--font-serif)",
             outline: "none",
             padding: "8px 0 12px",
             width: "100%",
           }}
-          onFocus={(e) => (e.target.style.borderBottomColor = "#f97316")}
-          onBlur={(e) => (e.target.style.borderBottomColor = "#e7e5e4")}
+          onFocus={(e) => (e.target.style.borderBottomColor = "var(--accent)")}
+          onBlur={(e) => (e.target.style.borderBottomColor = "var(--border)")}
         />
 
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 2fr", gap: "14px" }}>
           <div>
             <label style={labelStyle}>slug</label>
             <input value={slug} onChange={(e) => setSlug(e.target.value)} placeholder="moya-statya" style={fieldStyle}
-              onFocus={(e) => (e.target.style.borderColor = "#f97316")}
-              onBlur={(e) => (e.target.style.borderColor = "#e7e5e4")} />
+              onFocus={(e) => (e.target.style.borderColor = "var(--accent)")}
+              onBlur={(e) => (e.target.style.borderColor = "var(--border)")} />
           </div>
           <div>
             <label style={labelStyle}>теги</label>
             <input value={tags} onChange={(e) => setTags(e.target.value)} placeholder="rust, личное" style={fieldStyle}
-              onFocus={(e) => (e.target.style.borderColor = "#f97316")}
-              onBlur={(e) => (e.target.style.borderColor = "#e7e5e4")} />
+              onFocus={(e) => (e.target.style.borderColor = "var(--accent)")}
+              onBlur={(e) => (e.target.style.borderColor = "var(--border)")} />
           </div>
           <div>
             <label style={labelStyle}>описание</label>
             <input value={excerpt} onChange={(e) => setExcerpt(e.target.value)} placeholder="Краткое описание для карточки и Telegram" style={fieldStyle}
-              onFocus={(e) => (e.target.style.borderColor = "#f97316")}
-              onBlur={(e) => (e.target.style.borderColor = "#e7e5e4")} />
+              onFocus={(e) => (e.target.style.borderColor = "var(--accent)")}
+              onBlur={(e) => (e.target.style.borderColor = "var(--border)")} />
           </div>
         </div>
 
