@@ -149,8 +149,8 @@ export function PostForm({ initialPost }: Props) {
     }
   };
 
-  // ── upload image and insert markdown at cursor ──
-  const uploadAndInsert = async (file: File) => {
+  // ── upload image and insert markdown at captured position ──
+  const uploadAndInsert = async (file: File, insertAt: number) => {
     if (!token) return;
     setBodyUploading(true);
     try {
@@ -161,19 +161,19 @@ export function PostForm({ initialPost }: Props) {
         headers: { Authorization: `Bearer ${token}` },
         body: form,
       });
-      if (!res.ok) throw new Error();
+      if (!res.ok) throw new Error(`upload ${res.status}`);
       const { url } = await res.json();
-      const ta = taRef.current;
-      if (!ta) return;
-      const pos = ta.selectionStart;
-      const snippet = `![](${url})`;
-      setBody((prev) => prev.slice(0, pos) + snippet + prev.slice(pos));
+      const snippet = `\n![](${url})\n`;
+      setBody((prev) => prev.slice(0, insertAt) + snippet + prev.slice(insertAt));
+      const newPos = insertAt + snippet.length;
       setTimeout(() => {
+        const ta = taRef.current;
+        if (!ta) return;
         ta.focus();
-        ta.setSelectionRange(pos + snippet.length, pos + snippet.length);
+        ta.setSelectionRange(newPos, newPos);
       }, 0);
-    } catch {
-      setError("Ошибка загрузки изображения");
+    } catch (err) {
+      setError(`Ошибка загрузки: ${err instanceof Error ? err.message : "неизвестная ошибка"}`);
     } finally {
       setBodyUploading(false);
     }
@@ -945,16 +945,18 @@ export function PostForm({ initialPost }: Props) {
                   value={body}
                   onChange={(e) => setBody(e.target.value)}
                   spellCheck={false}
-                  onDragOver={(e) => { e.preventDefault(); setEditorDragging(true); }}
-                  onDragEnter={(e) => { e.preventDefault(); setEditorDragging(true); }}
-                  onDragLeave={() => setEditorDragging(false)}
+                  onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); e.dataTransfer.dropEffect = "copy"; setEditorDragging(true); }}
+                  onDragEnter={(e) => { e.preventDefault(); e.stopPropagation(); setEditorDragging(true); }}
+                  onDragLeave={(e) => { e.preventDefault(); setEditorDragging(false); }}
                   onDrop={async (e) => {
                     e.preventDefault();
                     setEditorDragging(false);
+                    // capture insert position before any async work
+                    const insertAt = taRef.current?.selectionStart ?? body.length;
                     const files = Array.from(e.dataTransfer.files).filter((f) =>
                       f.type.startsWith("image/")
                     );
-                    for (const file of files) await uploadAndInsert(file);
+                    for (const file of files) await uploadAndInsert(file, insertAt);
                   }}
                   style={{
                     flex: 1,
