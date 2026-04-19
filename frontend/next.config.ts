@@ -3,11 +3,8 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   async redirects() {
     return [
-      {
-        source: "/posts/:slug",
-        destination: "/r/:slug",
-        permanent: false,
-      },
+      // /r/:slug stays as raw HTML for Telegram Instant View
+      // Old /posts/:slug links still work
     ];
   },
 };

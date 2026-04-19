@@ -11,7 +11,7 @@ export function RandomPostButton() {
     const posts = await api.listPosts(undefined, 50, 0).catch(() => []);
     if (posts.length === 0) return;
     const post = posts[Math.floor(Math.random() * posts.length)];
-    router.push(`/r/${post.slug}`);
+    router.push(`/posts/${post.slug}`);
   };
 
   return (

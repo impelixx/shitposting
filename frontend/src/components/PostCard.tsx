@@ -14,7 +14,7 @@ function readingTime(body: string) {
 }
 
 export function PostCard({ post, commentCount = 0, featured = false }: Props) {
-  const href = `/r/${post.slug}`;
+  const href = `/posts/${post.slug}`;
   const coverHeight = featured ? 320 : 150;
 
   return (

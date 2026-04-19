@@ -33,11 +33,29 @@ function esc(s: string) {
   return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 }
 
+function isBrowser(ua: string | null): boolean {
+  if (!ua) return false;
+  const lower = ua.toLowerCase();
+  // Telegram bots, crawlers, and headless fetchers get the IV-compatible page
+  if (lower.includes("telegram") || lower.includes("telegrambot")) return false;
+  if (lower.includes("bot") || lower.includes("crawler") || lower.includes("spider")) return false;
+  if (lower.includes("facebookexternalhit") || lower.includes("twitterbot") || lower.includes("slackbot")) return false;
+  // Real browsers have Mozilla in UA
+  return lower.includes("mozilla");
+}
+
 export async function GET(
-  _req: Request,
+  req: Request,
   { params }: { params: Promise<{ slug: string }> },
 ) {
   const { slug } = await params;
+
+  // Redirect real browsers to the Next.js magazine layout
+  const ua = req.headers.get("user-agent");
+  if (isBrowser(ua)) {
+    return NextResponse.redirect(new URL(`/posts/${slug}`, req.url), 302);
+  }
+
   const post = await api.getPost(slug).catch(() => null);
   if (!post) return new NextResponse("Not Found", { status: 404 });
 

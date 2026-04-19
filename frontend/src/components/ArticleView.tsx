@@ -1,6 +1,8 @@
 "use client";
 import { useEffect, useRef, useState, useCallback } from "react";
 import Link from "next/link";
+
+const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://impelix.dev";
 import { Post, Comment } from "@/lib/types";
 import { TagPill } from "@/components/TagPill";
 import { PostBody } from "@/components/PostBody";
@@ -160,7 +162,7 @@ function RightRail({
             }}
           >
             <Link
-              href={`/r/${nextPost.slug}`}
+              href={`/posts/${nextPost.slug}`}
               style={{ textDecoration: "none", display: "block" }}
             >
               <div
@@ -196,7 +198,7 @@ function RightRail({
             {relatedPosts.map((p) => (
               <Link
                 key={p.slug}
-                href={`/r/${p.slug}`}
+                href={`/posts/${p.slug}`}
                 style={{
                   textDecoration: "none",
                   display: "flex",
@@ -274,8 +276,12 @@ export function ArticleView({ post, comments, nextPost, relatedPosts }: Props) {
     return () => window.removeEventListener("scroll", handleScroll);
   }, [handleScroll]);
 
+  const shareUrl = typeof window !== "undefined"
+    ? `${window.location.origin}/r/${post.slug}`
+    : `${SITE}/r/${post.slug}`;
+
   const handleCopyLink = () => {
-    navigator.clipboard.writeText(window.location.href).then(() => {
+    navigator.clipboard.writeText(shareUrl).then(() => {
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
     });
@@ -443,7 +449,7 @@ export function ArticleView({ post, comments, nextPost, relatedPosts }: Props) {
               </button>
               <a
                 href={`https://t.me/share/url?url=${encodeURIComponent(
-                  typeof window !== "undefined" ? window.location.href : ""
+                  shareUrl
                 )}&text=${encodeURIComponent(post.title)}`}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -451,7 +457,7 @@ export function ArticleView({ post, comments, nextPost, relatedPosts }: Props) {
                 onClick={(e) => {
                   e.preventDefault();
                   window.open(
-                    `https://t.me/share/url?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(post.title)}`,
+                    `https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(post.title)}`,
                     "_blank"
                   );
                 }}
@@ -460,7 +466,7 @@ export function ArticleView({ post, comments, nextPost, relatedPosts }: Props) {
               </a>
               <a
                 href={`https://x.com/intent/tweet?url=${encodeURIComponent(
-                  typeof window !== "undefined" ? window.location.href : ""
+                  shareUrl
                 )}&text=${encodeURIComponent(post.title)}`}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -468,7 +474,7 @@ export function ArticleView({ post, comments, nextPost, relatedPosts }: Props) {
                 onClick={(e) => {
                   e.preventDefault();
                   window.open(
-                    `https://x.com/intent/tweet?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(post.title)}`,
+                    `https://x.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(post.title)}`,
                     "_blank"
                   );
                 }}
