@@ -18,80 +18,110 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
   );
 }
 
-function ArtPattern() {
+function StatsCard({ totalPosts, totalViews, totalComments }: {
+  totalPosts: number;
+  totalViews: number;
+  totalComments: number;
+}) {
+  const items = [
+    { label: "статей", value: totalPosts },
+    { label: "просмотров", value: totalViews },
+    { label: "комментариев", value: totalComments },
+  ];
   return (
-    <div style={{
-      width: "100%",
-      aspectRatio: "1",
-      borderRadius: 8,
-      overflow: "hidden",
-      position: "relative",
-      background: "var(--bg-sunken)",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-    }}>
-      <svg width="100%" height="100%" viewBox="0 0 200 200" style={{ position: "absolute", inset: 0 }}>
-        {[20, 40, 60, 80, 100].map((r, i) => (
-          <circle
-            key={r}
-            cx="100" cy="100" r={r}
-            fill="none"
-            stroke="var(--accent)"
-            strokeWidth={1.5 - i * 0.2}
-            opacity={0.15 + i * 0.08}
-          />
+    <div>
+      <SectionLabel>статистика</SectionLabel>
+      <div style={{
+        display: "grid",
+        gridTemplateColumns: "1fr 1fr 1fr",
+        gap: 8,
+      }}>
+        {items.map(({ label, value }) => (
+          <div key={label} style={{
+            background: "var(--bg-sunken)",
+            borderRadius: 8,
+            padding: "12px 10px",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: 4,
+          }}>
+            <span style={{
+              fontFamily: "var(--font-mono)",
+              fontWeight: 700,
+              fontSize: 22,
+              color: "var(--accent)",
+              lineHeight: 1,
+            }}>
+              {value >= 1000 ? `${(value / 1000).toFixed(1)}k` : value}
+            </span>
+            <span style={{
+              fontSize: 10,
+              color: "var(--fg-faint)",
+              textTransform: "uppercase",
+              letterSpacing: "0.1em",
+            }}>
+              {label}
+            </span>
+          </div>
         ))}
-        <circle cx="100" cy="100" r="10" fill="var(--accent)" opacity="0.6" />
-        {Array.from({ length: 12 }).map((_, i) => {
-          const angle = (i / 12) * Math.PI * 2;
-          const x = 100 + Math.cos(angle) * 85;
-          const y = 100 + Math.sin(angle) * 85;
-          return <circle key={i} cx={x} cy={y} r="3" fill="var(--accent)" opacity="0.25" />;
-        })}
-      </svg>
-      <span style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "var(--accent)", opacity: 0.7, zIndex: 1 }}>impelix</span>
+      </div>
     </div>
   );
 }
 
-function Heatmap() {
-  const weeks = 16, days = 7;
-  const cells: number[] = [];
-  let seed = 42;
-  const rand = () => {
-    seed = (seed * 9301 + 49297) % 233280;
-    return seed / 233280;
-  };
-  for (let i = 0; i < weeks * days; i++) {
-    const v = rand();
-    let level = 0;
-    if (v > 0.6) level = 1;
-    if (v > 0.82) level = 2;
-    if (v > 0.94) level = 3;
-    cells.push(level);
+function Heatmap({ postsPerDay }: { postsPerDay: { day: string; count: number }[] }) {
+  const weeks = 16;
+  const days = 7;
+  const totalCells = weeks * days;
+
+  // Build a map of date → count
+  const map: Record<string, number> = {};
+  for (const { day, count } of postsPerDay) {
+    map[day] = count;
   }
 
-  const heatColor = (lvl: number) => {
-    if (lvl === 0) return "var(--bg-sunken)";
-    if (lvl === 1) return "oklch(0.88 0.08 65)";
-    if (lvl === 2) return "oklch(0.78 0.14 55)";
+  // Generate last `totalCells` days from today
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const cells: { date: string; count: number }[] = [];
+  for (let i = totalCells - 1; i >= 0; i--) {
+    const d = new Date(today);
+    d.setDate(today.getDate() - i);
+    const key = d.toISOString().slice(0, 10);
+    cells.push({ date: key, count: map[key] ?? 0 });
+  }
+
+  const maxCount = Math.max(1, ...cells.map((c) => c.count));
+
+  const heatColor = (count: number) => {
+    if (count === 0) return "var(--bg-sunken)";
+    const ratio = count / maxCount;
+    if (ratio < 0.34) return "oklch(0.88 0.08 65)";
+    if (ratio < 0.67) return "oklch(0.78 0.14 55)";
     return "oklch(0.65 0.18 50)";
   };
+
+  // Arrange into weeks×days grid (column = week, row = day-of-week)
+  const grid: { date: string; count: number }[][] = Array.from({ length: weeks }, (_, w) =>
+    cells.slice(w * days, w * days + days)
+  );
 
   return (
     <div>
       <SectionLabel>календарь публикаций</SectionLabel>
       <div style={{ display: "flex", gap: 3 }}>
-        {Array.from({ length: weeks }).map((_, w) => (
+        {grid.map((week, w) => (
           <div key={w} style={{ display: "flex", flexDirection: "column", gap: 3, flex: 1 }}>
-            {Array.from({ length: days }).map((_, d) => (
+            {week.map((cell) => (
               <div
-                key={d}
+                key={cell.date}
+                title={cell.count > 0 ? `${cell.date}: ${cell.count} пост(а)` : cell.date}
                 style={{
                   aspectRatio: "1",
-                  background: heatColor(cells[w * days + d]),
+                  background: heatColor(cell.count),
                   borderRadius: 2,
+                  cursor: cell.count > 0 ? "default" : undefined,
                 }}
               />
             ))}
@@ -104,9 +134,10 @@ function Heatmap() {
       }}>
         <span>16 нед</span>
         <div style={{ display: "flex", alignItems: "center", gap: 3 }}>
-          {[0, 1, 2, 3].map(l => (
-            <div key={l} style={{ width: 8, height: 8, background: heatColor(l), borderRadius: 2 }} />
-          ))}
+          {[0, 1, 2, 3].map(l => {
+            const colors = ["var(--bg-sunken)", "oklch(0.88 0.08 65)", "oklch(0.78 0.14 55)", "oklch(0.65 0.18 50)"];
+            return <div key={l} style={{ width: 8, height: 8, background: colors[l], borderRadius: 2 }} />;
+          })}
         </div>
       </div>
     </div>
@@ -114,12 +145,19 @@ function Heatmap() {
 }
 
 export async function Sidebar() {
-  const tags = await api.listTags().catch(() => []);
+  const [tags, stats] = await Promise.all([
+    api.listTags().catch(() => []),
+    api.getStats().catch(() => ({ total_posts: 0, total_views: 0, total_comments: 0, posts_per_day: [] })),
+  ]);
 
   return (
     <aside style={{ width: 280, flexShrink: 0, display: "flex", flexDirection: "column", gap: 32, paddingTop: 4 }}>
-      <ArtPattern />
-      <Heatmap />
+      <StatsCard
+        totalPosts={stats.total_posts}
+        totalViews={stats.total_views}
+        totalComments={stats.total_comments}
+      />
+      <Heatmap postsPerDay={stats.posts_per_day} />
 
       <div>
         <SectionLabel>теги</SectionLabel>

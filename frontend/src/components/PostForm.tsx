@@ -106,9 +106,11 @@ export function PostForm({ initialPost }: Props) {
   const [slug, setSlug] = useState(initialPost?.slug ?? "");
   const [excerpt, setExcerpt] = useState(initialPost?.excerpt ?? "");
   const [tags, setTags] = useState<string[]>(
-    initialPost?.tags.filter(Boolean) ?? []
+    (initialPost?.tags ?? []).filter(Boolean).map((t) => t.startsWith("#") ? t.slice(1) : t)
   );
   const [tagInput, setTagInput] = useState("");
+  const [allTags, setAllTags] = useState<string[]>([]);
+  const [tagDropdownOpen, setTagDropdownOpen] = useState(false);
   const [body, setBody] = useState(initialPost?.body ?? "");
   const [coverImage, setCoverImage] = useState(initialPost?.cover_image ?? "");
   const [published, setPublished] = useState(initialPost?.published ?? false);
@@ -116,6 +118,11 @@ export function PostForm({ initialPost }: Props) {
   const [coverUploading, setCoverUploading] = useState(false);
   const [error, setError] = useState("");
   const [activeTab, setActiveTab] = useState<TabKey>("split");
+
+  // ── load existing tags ──
+  useEffect(() => {
+    api.listTags().then((ts) => setAllTags(ts.map((t) => t.slug))).catch(() => {});
+  }, []);
 
   // ── cover upload ──
   const handleCoverUpload = async (file: File) => {
@@ -204,11 +211,12 @@ export function PostForm({ initialPost }: Props) {
   const addTag = (raw: string) => {
     const trimmed = raw.trim().replace(/,+$/, "").trim();
     if (!trimmed) return;
-    const tag = trimmed.startsWith("#") ? trimmed : `#${trimmed}`;
-    if (!tags.includes(tag)) {
+    const tag = trimmed.startsWith("#") ? trimmed.slice(1) : trimmed;
+    if (tag && !tags.includes(tag)) {
       setTags((prev) => [...prev, tag]);
     }
     setTagInput("");
+    setTagDropdownOpen(false);
   };
 
   const removeTag = (tag: string) => {
@@ -620,18 +628,90 @@ export function PostForm({ initialPost }: Props) {
                 ))}
               </div>
             )}
-            <input
-              value={tagInput}
-              onChange={(e) => setTagInput(e.target.value)}
-              placeholder="новый тег + Enter"
-              style={{ ...inputStyle, fontSize: 12 }}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === ",") {
-                  e.preventDefault();
-                  addTag(tagInput);
-                }
-              }}
-            />
+            <div style={{ position: "relative" }}>
+              <input
+                value={tagInput}
+                onChange={(e) => {
+                  setTagInput(e.target.value);
+                  setTagDropdownOpen(e.target.value.length > 0);
+                }}
+                placeholder="новый тег + Enter"
+                style={{ ...inputStyle, fontSize: 12 }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === ",") {
+                    e.preventDefault();
+                    addTag(tagInput);
+                  }
+                  if (e.key === "Escape") setTagDropdownOpen(false);
+                }}
+                onFocus={() => setTagDropdownOpen(tagInput.length > 0)}
+                onBlur={() => setTimeout(() => setTagDropdownOpen(false), 150)}
+              />
+              {tagDropdownOpen && (() => {
+                const q = tagInput.toLowerCase().replace(/^#/, "");
+                const matches = allTags.filter(
+                  (t) => t.toLowerCase().includes(q) && !tags.includes(t)
+                );
+                const showCreate = q && !allTags.some((t) => t.toLowerCase() === q) && !tags.includes(q);
+                if (matches.length === 0 && !showCreate) return null;
+                return (
+                  <div style={{
+                    position: "absolute",
+                    top: "100%",
+                    left: 0,
+                    right: 0,
+                    marginTop: 4,
+                    background: "var(--bg-elev)",
+                    border: "1px solid var(--border)",
+                    borderRadius: 6,
+                    zIndex: 20,
+                    overflow: "hidden",
+                    boxShadow: "0 4px 16px rgba(0,0,0,0.1)",
+                  }}>
+                    {matches.map((t) => (
+                      <button
+                        key={t}
+                        type="button"
+                        onMouseDown={() => addTag(t)}
+                        style={{
+                          width: "100%",
+                          textAlign: "left",
+                          padding: "8px 12px",
+                          background: "transparent",
+                          border: "none",
+                          borderBottom: "1px solid var(--border)",
+                          fontSize: 12,
+                          color: "var(--fg)",
+                          cursor: "pointer",
+                          fontFamily: "var(--font-mono)",
+                        }}
+                      >
+                        #{t}
+                      </button>
+                    ))}
+                    {showCreate && (
+                      <button
+                        type="button"
+                        onMouseDown={() => addTag(q)}
+                        style={{
+                          width: "100%",
+                          textAlign: "left",
+                          padding: "8px 12px",
+                          background: "transparent",
+                          border: "none",
+                          fontSize: 12,
+                          color: "var(--accent)",
+                          cursor: "pointer",
+                          fontFamily: "var(--font-mono)",
+                        }}
+                      >
+                        + создать «{q}»
+                      </button>
+                    )}
+                  </div>
+                );
+              })()}
+            </div>
           </div>
 
           {/* 6. СТАТУС */}

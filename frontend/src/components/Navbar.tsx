@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { NavbarAuth } from "@/components/NavbarAuth";
 
 interface Props {
   children?: ReactNode;
@@ -16,10 +17,13 @@ export function Navbar({ children }: Props) {
               impelix blog
             </span>
           </Link>
-          <nav style={{ display: "flex", gap: 20, fontSize: 13, color: "var(--fg-dark-mute)" }}>
-            <Link href="/" style={{ color: "var(--fg-dark)" }}>Статьи</Link>
-            <Link href="/about" style={{ color: "var(--fg-dark-mute)" }}>О блоге</Link>
-          </nav>
+          <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
+            <nav style={{ display: "flex", gap: 20, fontSize: 13, color: "var(--fg-dark-mute)" }}>
+              <Link href="/" style={{ color: "var(--fg-dark)" }}>Статьи</Link>
+              <Link href="/about" style={{ color: "var(--fg-dark-mute)" }}>О блоге</Link>
+            </nav>
+            <NavbarAuth />
+          </div>
         </div>
         <div style={{ fontSize: 12, color: "var(--fg-dark-mute)", marginTop: 4, marginLeft: 28 }}>
           То, что не поместилось в канал знатока, но написать надо

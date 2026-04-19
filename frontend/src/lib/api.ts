@@ -28,6 +28,7 @@ export const api = {
   listTags: () => apiFetch<Tag[]>("/api/tags"),
   search: (q: string) => apiFetch<SearchResult[]>(`/api/search?q=${encodeURIComponent(q)}`),
   trackView: (slug: string) => apiFetch<{ views: number }>(`/api/posts/${slug}/view`, { method: "POST" }),
+  getStats: () => apiFetch<{ total_posts: number; total_views: number; total_comments: number; posts_per_day: { day: string; count: number }[] }>("/api/stats"),
 
   // auth
   login: (username: string, password: string) =>

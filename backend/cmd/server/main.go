@@ -76,6 +76,7 @@ func main() {
 	commentsH := handler.NewCommentsHandler(postRepo, commentRepo)
 	tagsH := handler.NewTagsHandler(tagRepo)
 	searchH := handler.NewSearchHandler(searchClient, postRepo)
+	statsH := handler.NewStatsHandler(postRepo)
 	uploadH := handler.NewUploadHandler(r2)
 
 	r := chi.NewRouter()
@@ -103,6 +104,7 @@ func main() {
 	r.Post("/api/posts/{slug}/comments", commentsH.Create)
 	r.Get("/api/tags", tagsH.List)
 	r.Get("/api/search", searchH.Search)
+	r.Get("/api/stats", statsH.Get)
 
 	r.Group(func(r chi.Router) {
 		r.Use(middleware.RequireAuth(cfg.JWTSecret))

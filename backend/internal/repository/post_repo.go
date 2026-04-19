@@ -146,6 +146,49 @@ func (r *PostRepo) IncrementViews(ctx context.Context, slug string) (int64, erro
 	return views, err
 }
 
+type Stats struct {
+	TotalPosts    int64       `json:"total_posts"`
+	TotalViews    int64       `json:"total_views"`
+	TotalComments int64       `json:"total_comments"`
+	PostsPerDay   []DayCount  `json:"posts_per_day"`
+}
+
+type DayCount struct {
+	Day   string `json:"day"`
+	Count int    `json:"count"`
+}
+
+func (r *PostRepo) GetStats(ctx context.Context) (*Stats, error) {
+	var s Stats
+	err := r.pool.QueryRow(ctx, `
+		SELECT
+			COUNT(*) FILTER (WHERE published = true),
+			COALESCE(SUM(views) FILTER (WHERE published = true), 0)
+		FROM posts`,
+	).Scan(&s.TotalPosts, &s.TotalViews)
+	if err != nil {
+		return nil, err
+	}
+	_ = r.pool.QueryRow(ctx, `SELECT COUNT(*) FROM comments`).Scan(&s.TotalComments)
+
+	rows, err := r.pool.Query(ctx, `
+		SELECT DATE(created_at)::text, COUNT(*)
+		FROM posts
+		WHERE published = true AND created_at > NOW() - INTERVAL '112 days'
+		GROUP BY DATE(created_at)
+		ORDER BY DATE(created_at)`)
+	if err == nil {
+		defer rows.Close()
+		for rows.Next() {
+			var dc DayCount
+			if rows.Scan(&dc.Day, &dc.Count) == nil {
+				s.PostsPerDay = append(s.PostsPerDay, dc)
+			}
+		}
+	}
+	return &s, nil
+}
+
 func (r *PostRepo) Search(ctx context.Context, q string) ([]*Post, error) {
 	like := "%" + q + "%"
 	rows, err := r.pool.Query(ctx, `
