@@ -945,13 +945,26 @@ export function PostForm({ initialPost }: Props) {
                   value={body}
                   onChange={(e) => setBody(e.target.value)}
                   spellCheck={false}
-                  onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); e.dataTransfer.dropEffect = "copy"; setEditorDragging(true); }}
-                  onDragEnter={(e) => { e.preventDefault(); e.stopPropagation(); setEditorDragging(true); }}
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    e.dataTransfer.dropEffect = "copy";
+                    setEditorDragging(true);
+                  }}
+                  onDragEnter={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    // Focus so browser updates selectionStart as cursor moves over textarea
+                    taRef.current?.focus();
+                    setEditorDragging(true);
+                  }}
                   onDragLeave={(e) => { e.preventDefault(); setEditorDragging(false); }}
                   onDrop={async (e) => {
                     e.preventDefault();
+                    e.stopPropagation();
                     setEditorDragging(false);
-                    // capture insert position before any async work
+                    // selectionStart now reflects the exact visual drop position
+                    // because we focused the textarea on dragenter
                     const insertAt = taRef.current?.selectionStart ?? body.length;
                     const files = Array.from(e.dataTransfer.files).filter((f) =>
                       f.type.startsWith("image/")
