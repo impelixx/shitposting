@@ -89,6 +89,7 @@ export function PostCard({ post, commentCount = 0, featured = false }: Props) {
           }}>
             <span>{readingTime(post.body)} мин чтения</span>
             <span>💬 {commentCount}</span>
+            {post.views > 0 && <span>👁 {post.views}</span>}
           </div>
         </div>
       </div>

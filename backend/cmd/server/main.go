@@ -69,6 +69,7 @@ func main() {
 
 	r.Get("/api/posts", postsH.List)
 	r.Get("/api/posts/{slug}", postsH.Get)
+	r.Post("/api/posts/{slug}/view", postsH.View)
 	r.Get("/api/posts/{slug}/comments", commentsH.List)
 	r.Post("/api/posts/{slug}/comments", commentsH.Create)
 	r.Get("/api/tags", tagsH.List)

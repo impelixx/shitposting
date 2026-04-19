@@ -5,52 +5,119 @@ import Link from "next/link";
 import { api } from "@/lib/api";
 import { auth } from "@/lib/auth";
 import { Post } from "@/lib/types";
-import { MarkdownEditor } from "./MarkdownEditor";
+import { PostBody } from "@/components/PostBody";
 
-const MONO = "var(--font-mono)";
 const BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
 
-const fieldStyle: React.CSSProperties = {
-  border: "1px solid var(--border)",
-  borderRadius: "6px",
-  padding: "6px 10px",
-  fontSize: "12px",
-  fontFamily: MONO,
-  background: "var(--bg)",
-  color: "var(--fg)",
-  outline: "none",
+// ── helpers ──────────────────────────────────────────────────────────────────
+
+function wordCount(text: string) {
+  return text.trim() === "" ? 0 : text.trim().split(/\s+/).length;
+}
+
+function readMin(wc: number) {
+  return Math.max(1, Math.round(wc / 200));
+}
+
+// ── sub-components ────────────────────────────────────────────────────────────
+
+const FieldLabel = ({ children }: { children: React.ReactNode }) => (
+  <div
+    style={{
+      fontSize: 11,
+      color: "var(--fg-mute)",
+      textTransform: "uppercase",
+      letterSpacing: "0.1em",
+      fontWeight: 600,
+      marginBottom: 6,
+    }}
+  >
+    {children}
+  </div>
+);
+
+const inputStyle: React.CSSProperties = {
   width: "100%",
+  padding: "10px 12px",
+  background: "var(--bg-elev)",
+  border: "1px solid var(--border)",
+  borderRadius: 6,
+  color: "var(--fg)",
+  fontFamily: "var(--font-sans)",
+  fontSize: 14,
+  outline: "none",
+  boxSizing: "border-box",
 };
 
-const labelStyle: React.CSSProperties = {
-  fontSize: "10px",
-  color: "var(--fg-faint)",
-  textTransform: "uppercase",
-  letterSpacing: "1px",
-  marginBottom: "4px",
-  display: "block",
+const Divider = () => (
+  <div style={{ width: 1, height: 20, background: "var(--border)", flexShrink: 0 }} />
+);
+
+interface ToolbarButtonProps {
+  onClick: () => void;
+  title?: string;
+  children: React.ReactNode;
+}
+const ToolbarButton = ({ onClick, title, children }: ToolbarButtonProps) => {
+  const [hovered, setHovered] = useState(false);
+  return (
+    <button
+      type="button"
+      title={title}
+      onClick={onClick}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        width: 32,
+        height: 32,
+        display: "inline-flex",
+        alignItems: "center",
+        justifyContent: "center",
+        borderRadius: 4,
+        fontSize: 13,
+        color: hovered ? "var(--accent)" : "var(--fg-mute)",
+        background: hovered ? "var(--bg-sunken)" : "transparent",
+        border: "none",
+        cursor: "pointer",
+        flexShrink: 0,
+      }}
+    >
+      {children}
+    </button>
+  );
 };
+
+// ── main component ─────────────────────────────────────────────────────────────
 
 interface Props {
   initialPost?: Post;
 }
 
+type TabKey = "markdown" | "split" | "preview";
+
 export function PostForm({ initialPost }: Props) {
   const router = useRouter();
   const token = auth.getToken() ?? undefined;
   const coverRef = useRef<HTMLInputElement>(null);
+  const taRef = useRef<HTMLTextAreaElement>(null);
 
+  // ── state ──
   const [title, setTitle] = useState(initialPost?.title ?? "");
   const [slug, setSlug] = useState(initialPost?.slug ?? "");
   const [excerpt, setExcerpt] = useState(initialPost?.excerpt ?? "");
-  const [tags, setTags] = useState(initialPost?.tags.join(", ") ?? "");
+  const [tags, setTags] = useState<string[]>(
+    initialPost?.tags.filter(Boolean) ?? []
+  );
+  const [tagInput, setTagInput] = useState("");
   const [body, setBody] = useState(initialPost?.body ?? "");
   const [coverImage, setCoverImage] = useState(initialPost?.cover_image ?? "");
   const [published, setPublished] = useState(initialPost?.published ?? false);
   const [loading, setLoading] = useState(false);
   const [coverUploading, setCoverUploading] = useState(false);
   const [error, setError] = useState("");
+  const [activeTab, setActiveTab] = useState<TabKey>("split");
 
+  // ── cover upload ──
   const handleCoverUpload = async (file: File) => {
     if (!token) return;
     setCoverUploading(true);
@@ -73,37 +140,45 @@ export function PostForm({ initialPost }: Props) {
   };
 
   const handleCoverUploadRef = useRef(handleCoverUpload);
-  useEffect(() => { handleCoverUploadRef.current = handleCoverUpload; });
+  useEffect(() => {
+    handleCoverUploadRef.current = handleCoverUpload;
+  });
 
+  // ── paste listener ──
   useEffect(() => {
     if (!token) return;
     const handlePaste = async (e: ClipboardEvent) => {
       const target = e.target as HTMLElement;
-      if (target.closest(".w-md-editor")) return;
-
+      // skip when inside the markdown textarea editor
+      if (target.closest("textarea") === taRef.current) return;
       const items = Array.from(e.clipboardData?.items ?? []);
       const imageItem = items.find((it) => it.type.startsWith("image/"));
       if (!imageItem) return;
-
       e.preventDefault();
       const file = imageItem.getAsFile();
       if (!file) return;
-
       await handleCoverUploadRef.current(file);
     };
     document.addEventListener("paste", handlePaste);
     return () => document.removeEventListener("paste", handlePaste);
   }, [token]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  // ── submit ──
+  const handleSave = async (publishedValue: boolean) => {
     setLoading(true);
     setError("");
-    if (!token) { router.push("/login"); return; }
+    if (!token) {
+      router.push("/login");
+      return;
+    }
     const data = {
-      title, slug, excerpt, body, cover_image: coverImage,
-      tags: tags.split(",").map((t) => t.trim()).filter(Boolean),
-      published,
+      title,
+      slug,
+      excerpt,
+      body,
+      cover_image: coverImage,
+      tags: tags.map((t) => t.trim()).filter(Boolean),
+      published: publishedValue,
     };
     try {
       if (initialPost) {
@@ -111,6 +186,7 @@ export function PostForm({ initialPost }: Props) {
       } else {
         await api.createPost(token, data);
       }
+      setPublished(publishedValue);
       router.push("/admin");
     } catch {
       setError("Ошибка при сохранении");
@@ -119,176 +195,715 @@ export function PostForm({ initialPost }: Props) {
     }
   };
 
+  // keep old handleSubmit wired to form to prevent accidental native submit
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+  };
+
+  // ── tags ──
+  const addTag = (raw: string) => {
+    const trimmed = raw.trim().replace(/,+$/, "").trim();
+    if (!trimmed) return;
+    const tag = trimmed.startsWith("#") ? trimmed : `#${trimmed}`;
+    if (!tags.includes(tag)) {
+      setTags((prev) => [...prev, tag]);
+    }
+    setTagInput("");
+  };
+
+  const removeTag = (tag: string) => {
+    setTags((prev) => prev.filter((t) => t !== tag));
+  };
+
+  // ── toolbar ops ──
+  const wrapSelection = (before: string, after?: string) => {
+    const ta = taRef.current;
+    if (!ta) return;
+    const start = ta.selectionStart;
+    const end = ta.selectionEnd;
+    const selected = ta.value.slice(start, end);
+    const closeWith = after ?? before;
+    const newValue =
+      ta.value.slice(0, start) +
+      before +
+      selected +
+      closeWith +
+      ta.value.slice(end);
+    setBody(newValue);
+    setTimeout(() => {
+      ta.focus();
+      ta.setSelectionRange(
+        start + before.length,
+        start + before.length + selected.length
+      );
+    }, 0);
+  };
+
+  const insertLine = (prefix: string) => {
+    const ta = taRef.current;
+    if (!ta) return;
+    const pos = ta.selectionStart;
+    const lineStart = ta.value.lastIndexOf("\n", pos - 1) + 1;
+    const newValue =
+      ta.value.slice(0, lineStart) + prefix + ta.value.slice(lineStart);
+    setBody(newValue);
+    setTimeout(() => {
+      ta.focus();
+      ta.setSelectionRange(pos + prefix.length, pos + prefix.length);
+    }, 0);
+  };
+
+  // ── derived ──
+  const wc = wordCount(body);
+  const rm = readMin(wc);
+  const breadcrumb = slug ? `nano ${slug}.md` : "nano article.md";
+
+  const tabs: { key: TabKey; label: string }[] = [
+    { key: "markdown", label: "Markdown" },
+    { key: "split", label: "Split" },
+    { key: "preview", label: "Preview" },
+  ];
+
+  const showEdit = activeTab === "markdown" || activeTab === "split";
+  const showPreview = activeTab === "preview" || activeTab === "split";
+
   return (
     <form
       onSubmit={handleSubmit}
-      style={{ display: "flex", flexDirection: "column", minHeight: "100vh", background: "var(--bg)", fontFamily: MONO }}
-    >
-      {/* Sticky top bar */}
-      <div style={{
-        background: "var(--bg-dark, oklch(0.18 0.012 60))",
-        borderBottom: "1px solid oklch(0.3 0.015 60)",
-        padding: "0 24px",
-        height: "52px",
+      style={{
         display: "flex",
-        alignItems: "center",
-        gap: "12px",
-        position: "sticky",
-        top: 0,
-        zIndex: 10,
-      }}>
-        <Link href="/admin" style={{ color: "var(--fg-dark-mute)", fontSize: "12px", textDecoration: "none", flexShrink: 0 }}>
+        flexDirection: "column",
+        minHeight: "100vh",
+        background: "var(--bg)",
+        color: "var(--fg)",
+        fontFamily: "var(--font-sans)",
+      }}
+    >
+      {/* ── TOP BAR ── */}
+      <div
+        style={{
+          borderBottom: "1px solid var(--border)",
+          padding: "14px 24px",
+          display: "flex",
+          alignItems: "center",
+          gap: 16,
+          background: "var(--bg-elev)",
+          position: "sticky",
+          top: 0,
+          zIndex: 10,
+        }}
+      >
+        {/* left */}
+        <Link
+          href="/admin"
+          style={{
+            display: "flex",
+            gap: 8,
+            fontFamily: "var(--font-mono)",
+            fontSize: 13,
+            color: "var(--fg-mute)",
+            textDecoration: "none",
+            flexShrink: 0,
+          }}
+        >
           ← назад
         </Link>
-        <span style={{ color: "var(--fg-dark-mute)", fontSize: "12px" }}>|</span>
-        <span style={{ color: "var(--fg-dark-mute)", fontSize: "12px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-          {initialPost ? `admin / posts / ${initialPost.slug} / edit` : "admin / posts / new"}
+        <Divider />
+        <span
+          style={{
+            fontFamily: "var(--font-mono)",
+            fontSize: 13,
+            whiteSpace: "nowrap",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+          }}
+        >
+          <span style={{ color: "var(--accent)" }}>&gt;</span> {breadcrumb}
         </span>
-        <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: "16px", flexShrink: 0 }}>
-          {error && <span style={{ color: "#f87171", fontSize: "12px" }}>{error}</span>}
-          <label style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "12px", color: "#a8a29e", cursor: "pointer" }}>
-            <input
-              type="checkbox"
-              checked={published}
-              onChange={(e) => setPublished(e.target.checked)}
-              style={{ accentColor: "var(--accent)", cursor: "pointer" }}
-            />
-            опубликовать
-          </label>
-          {slug && (
-            <Link
-              href={`/r/${slug}`}
-              target="_blank"
-              style={{ fontSize: "12px", color: "var(--fg-dark-mute)", textDecoration: "none", border: "1px solid oklch(0.3 0.015 60)", borderRadius: "4px", padding: "4px 10px" }}
-            >
-              читалка ↗
-            </Link>
-          )}
-          <button
-            type="submit"
-            disabled={loading}
+
+        {/* right */}
+        <div
+          style={{
+            marginLeft: "auto",
+            display: "flex",
+            alignItems: "center",
+            gap: 12,
+            flexShrink: 0,
+          }}
+        >
+          <span
             style={{
-              background: loading ? "var(--fg-mute)" : "var(--accent)",
-              color: "#fff",
-              border: "none",
-              borderRadius: "6px",
-              padding: "6px 18px",
-              fontSize: "12px",
-              fontWeight: 600,
-              cursor: loading ? "not-allowed" : "pointer",
-              fontFamily: MONO,
+              fontSize: 12,
+              color: "var(--fg-faint)",
+              fontFamily: "var(--font-mono)",
+              whiteSpace: "nowrap",
             }}
           >
-            {loading ? "сохранение..." : "сохранить"}
+            {wc} слов · {rm} мин чтения
+          </span>
+
+          <span
+            style={{
+              fontSize: 12,
+              fontFamily: "var(--font-mono)",
+              color: published
+                ? "oklch(0.6 0.14 145)"
+                : "oklch(0.72 0.12 80)",
+              whiteSpace: "nowrap",
+            }}
+          >
+            ● {published ? "опубликовано" : "черновик"}
+          </span>
+
+          {error && (
+            <span style={{ color: "#f87171", fontSize: 12 }}>{error}</span>
+          )}
+
+          <Divider />
+
+          <button
+            type="button"
+            disabled={loading}
+            onClick={() => handleSave(false)}
+            style={{
+              padding: "8px 14px",
+              borderRadius: 6,
+              border: "1px solid var(--border)",
+              fontSize: 13,
+              color: "var(--fg)",
+              background: "transparent",
+              cursor: loading ? "not-allowed" : "pointer",
+              fontFamily: "var(--font-sans)",
+              whiteSpace: "nowrap",
+            }}
+          >
+            Сохранить черновик
+          </button>
+
+          <button
+            type="button"
+            disabled={loading}
+            onClick={() => handleSave(true)}
+            style={{
+              padding: "8px 16px",
+              borderRadius: 6,
+              background: loading ? "var(--fg-mute)" : "var(--accent)",
+              color: "#fff",
+              fontSize: 13,
+              fontWeight: 600,
+              border: "none",
+              cursor: loading ? "not-allowed" : "pointer",
+              fontFamily: "var(--font-sans)",
+              whiteSpace: "nowrap",
+            }}
+          >
+            {loading ? "сохраняю..." : published ? "Сохранить" : "Опубликовать →"}
           </button>
         </div>
       </div>
 
-      {/* Cover image zone */}
-      <input
-        ref={coverRef}
-        type="file"
-        accept=".jpg,.jpeg,.png,.webp,.gif"
-        style={{ display: "none" }}
-        onChange={(e) => {
-          const f = e.target.files?.[0];
-          if (f) handleCoverUpload(f);
-          e.target.value = "";
-        }}
-      />
+      {/* ── MAIN AREA ── */}
       <div
-        onClick={() => coverRef.current?.click()}
         style={{
-          position: "relative",
-          width: "100%",
-          height: coverImage ? "260px" : "80px",
-          background: coverImage ? "transparent" : "var(--bg-sunken, oklch(0.96 0.014 80))",
-          borderBottom: "1px solid var(--border)",
-          cursor: "pointer",
-          overflow: "hidden",
-          transition: "height 0.2s",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
+          flex: 1,
+          display: "grid",
+          gridTemplateColumns: "280px 1fr",
+          minHeight: 0,
         }}
       >
-        {coverImage ? (
-          <>
-            <img
-              src={coverImage}
-              alt="обложка"
-              style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+        {/* ── LEFT META SIDEBAR ── */}
+        <div
+          style={{
+            borderRight: "1px solid var(--border)",
+            padding: 24,
+            overflowY: "auto",
+            background: "var(--bg-elev)",
+            display: "flex",
+            flexDirection: "column",
+            gap: 20,
+          }}
+        >
+          {/* 1. ЗАГОЛОВОК */}
+          <div>
+            <FieldLabel>Заголовок</FieldLabel>
+            <input
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Заголовок статьи"
+              style={inputStyle}
             />
-            <div style={{
-              position: "absolute", inset: 0,
-              background: "linear-gradient(to top, rgba(28,25,23,0.6) 0%, transparent 60%)",
-              display: "flex", alignItems: "flex-end", justifyContent: "space-between",
-              padding: "16px 24px",
-            }}>
-              <span style={{ color: "rgba(255,255,255,0.7)", fontSize: "11px" }}>нажмите чтобы сменить обложку</span>
-              <button
-                type="button"
-                onClick={(e) => { e.stopPropagation(); setCoverImage(""); }}
+          </div>
+
+          {/* 2. SLUG */}
+          <div>
+            <FieldLabel>Slug</FieldLabel>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                background: "var(--bg-elev)",
+                border: "1px solid var(--border)",
+                borderRadius: 6,
+                overflow: "hidden",
+              }}
+            >
+              <span
                 style={{
-                  background: "rgba(28,25,23,0.7)", border: "none", color: "#a8a29e",
-                  fontSize: "11px", padding: "4px 10px", borderRadius: "4px", cursor: "pointer", fontFamily: MONO,
+                  fontFamily: "var(--font-mono)",
+                  fontSize: 12,
+                  color: "var(--fg-faint)",
+                  paddingLeft: 10,
+                  whiteSpace: "nowrap",
+                  flexShrink: 0,
                 }}
               >
-                убрать
-              </button>
+                /r/
+              </span>
+              <input
+                value={slug}
+                onChange={(e) => setSlug(e.target.value)}
+                placeholder="moya-statya"
+                style={{
+                  flex: 1,
+                  border: "none",
+                  background: "transparent",
+                  fontFamily: "var(--font-mono)",
+                  fontSize: 13,
+                  color: "var(--fg)",
+                  padding: "10px 10px 10px 4px",
+                  outline: "none",
+                }}
+              />
             </div>
-          </>
-        ) : (
-          <span style={{ color: "#a8a29e", fontSize: "12px" }}>
-            {coverUploading ? "загружаю..." : "+ добавить обложку"}
-          </span>
-        )}
-      </div>
-
-      {/* Content */}
-      <div style={{ flex: 1, maxWidth: "960px", width: "100%", margin: "0 auto", padding: "28px 24px", display: "flex", flexDirection: "column", gap: "20px" }}>
-        <input
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          placeholder="Заголовок статьи..."
-          style={{
-            border: "none",
-            borderBottom: "2px solid var(--border)",
-            background: "transparent",
-            fontSize: "26px",
-            fontWeight: 600,
-            color: "var(--fg)",
-            fontFamily: "var(--font-serif)",
-            outline: "none",
-            padding: "8px 0 12px",
-            width: "100%",
-          }}
-          onFocus={(e) => (e.target.style.borderBottomColor = "var(--accent)")}
-          onBlur={(e) => (e.target.style.borderBottomColor = "var(--border)")}
-        />
-
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 2fr", gap: "14px" }}>
-          <div>
-            <label style={labelStyle}>slug</label>
-            <input value={slug} onChange={(e) => setSlug(e.target.value)} placeholder="moya-statya" style={fieldStyle}
-              onFocus={(e) => (e.target.style.borderColor = "var(--accent)")}
-              onBlur={(e) => (e.target.style.borderColor = "var(--border)")} />
           </div>
+
+          {/* 3. ОПИСАНИЕ (excerpt) */}
           <div>
-            <label style={labelStyle}>теги</label>
-            <input value={tags} onChange={(e) => setTags(e.target.value)} placeholder="rust, личное" style={fieldStyle}
-              onFocus={(e) => (e.target.style.borderColor = "var(--accent)")}
-              onBlur={(e) => (e.target.style.borderColor = "var(--border)")} />
+            <FieldLabel>Описание</FieldLabel>
+            <input
+              value={excerpt}
+              onChange={(e) => setExcerpt(e.target.value)}
+              placeholder="Краткое описание для карточки"
+              style={inputStyle}
+            />
           </div>
+
+          {/* 4. ОБЛОЖКА */}
           <div>
-            <label style={labelStyle}>описание</label>
-            <input value={excerpt} onChange={(e) => setExcerpt(e.target.value)} placeholder="Краткое описание для карточки и Telegram" style={fieldStyle}
-              onFocus={(e) => (e.target.style.borderColor = "var(--accent)")}
-              onBlur={(e) => (e.target.style.borderColor = "var(--border)")} />
+            <FieldLabel>Обложка</FieldLabel>
+            <input
+              ref={coverRef}
+              type="file"
+              accept=".jpg,.jpeg,.png,.webp,.gif"
+              style={{ display: "none" }}
+              onChange={(e) => {
+                const f = e.target.files?.[0];
+                if (f) handleCoverUpload(f);
+                e.target.value = "";
+              }}
+            />
+            {coverImage ? (
+              <div style={{ position: "relative", borderRadius: 6, overflow: "hidden" }}>
+                <img
+                  src={coverImage}
+                  alt="обложка"
+                  style={{ width: "100%", display: "block", borderRadius: 6 }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setCoverImage("")}
+                  style={{
+                    position: "absolute",
+                    top: 6,
+                    right: 6,
+                    background: "rgba(0,0,0,0.55)",
+                    border: "none",
+                    color: "#fff",
+                    fontSize: 14,
+                    width: 24,
+                    height: 24,
+                    borderRadius: "50%",
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    lineHeight: 1,
+                  }}
+                >
+                  ×
+                </button>
+              </div>
+            ) : (
+              <label style={{ cursor: "pointer" }}>
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    gap: 6,
+                    padding: "24px 16px",
+                    border: "2px dashed var(--border-strong, oklch(0.82 0.015 65))",
+                    borderRadius: 6,
+                    background: "var(--bg-sunken, oklch(0.96 0.014 80))",
+                    fontSize: 12,
+                    color: "var(--fg-mute)",
+                    textAlign: "center",
+                  }}
+                  onClick={() => coverRef.current?.click()}
+                >
+                  {coverUploading ? (
+                    <span>загружаю...</span>
+                  ) : (
+                    <>
+                      <span style={{ fontSize: 24 }}>📎</span>
+                      <span>перетащи файл или клик</span>
+                      <span
+                        style={{
+                          fontSize: 10,
+                          fontFamily: "var(--font-mono)",
+                          color: "var(--fg-faint)",
+                        }}
+                      >
+                        jpg / png / webp
+                      </span>
+                    </>
+                  )}
+                </div>
+              </label>
+            )}
+          </div>
+
+          {/* 5. ТЕГИ */}
+          <div>
+            <FieldLabel>Теги</FieldLabel>
+            {tags.length > 0 && (
+              <div
+                style={{
+                  display: "flex",
+                  flexWrap: "wrap",
+                  gap: 6,
+                  marginBottom: 8,
+                }}
+              >
+                {tags.map((tag) => (
+                  <span
+                    key={tag}
+                    style={{
+                      background: "var(--accent-bg)",
+                      color: "var(--rust)",
+                      borderRadius: 999,
+                      fontSize: 11,
+                      fontWeight: 500,
+                      padding: "2px 8px",
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: 4,
+                    }}
+                  >
+                    {tag}
+                    <button
+                      type="button"
+                      onClick={() => removeTag(tag)}
+                      style={{
+                        color: "var(--rust)",
+                        fontSize: 12,
+                        background: "none",
+                        border: "none",
+                        cursor: "pointer",
+                        padding: 0,
+                        lineHeight: 1,
+                      }}
+                    >
+                      ×
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
+            <input
+              value={tagInput}
+              onChange={(e) => setTagInput(e.target.value)}
+              placeholder="новый тег + Enter"
+              style={{ ...inputStyle, fontSize: 12 }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === ",") {
+                  e.preventDefault();
+                  addTag(tagInput);
+                }
+              }}
+            />
+          </div>
+
+          {/* 6. СТАТУС */}
+          <div>
+            <FieldLabel>Статус</FieldLabel>
+            <div style={{ display: "flex", gap: 6 }}>
+              {(
+                [
+                  { label: "Черновик", value: false },
+                  { label: "Опубликовано", value: true },
+                ] as const
+              ).map(({ label, value }) => {
+                const active = published === value;
+                return (
+                  <button
+                    key={label}
+                    type="button"
+                    onClick={() => setPublished(value)}
+                    style={{
+                      flex: 1,
+                      padding: 8,
+                      borderRadius: 6,
+                      fontSize: 12,
+                      border: active
+                        ? "1px solid var(--accent)"
+                        : "1px solid var(--border)",
+                      background: active ? "var(--accent-bg)" : "transparent",
+                      color: active ? "var(--rust)" : "var(--fg-mute)",
+                      fontWeight: active ? 600 : 400,
+                      cursor: "pointer",
+                    }}
+                  >
+                    {label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* File info block */}
+          <div
+            style={{
+              marginTop: 24,
+              padding: 12,
+              background: "var(--bg-sunken, oklch(0.96 0.014 80))",
+              borderRadius: 6,
+              fontSize: 11,
+              color: "var(--fg-faint)",
+              fontFamily: "var(--font-mono)",
+              lineHeight: 1.6,
+            }}
+          >
+            <div>📁 posts/{slug || "untitled"}.md</div>
+            <div>↳ status: {published ? "published" : "draft"}</div>
           </div>
         </div>
 
-        <MarkdownEditor value={body} onChange={setBody} token={token} />
+        {/* ── MAIN EDITOR AREA ── */}
+        <div
+          style={{
+            flex: 1,
+            display: "flex",
+            flexDirection: "column",
+            minHeight: 0,
+          }}
+        >
+          {/* Tabs + toolbar row */}
+          <div
+            style={{
+              borderBottom: "1px solid var(--border)",
+              display: "flex",
+              alignItems: "center",
+              padding: "0 16px",
+              gap: 8,
+              background: "var(--bg-elev)",
+              flexWrap: "wrap",
+            }}
+          >
+            {tabs.map(({ key, label }) => (
+              <button
+                key={key}
+                type="button"
+                onClick={() => setActiveTab(key)}
+                style={{
+                  padding: "12px 14px",
+                  fontSize: 12,
+                  fontFamily: "var(--font-mono)",
+                  color:
+                    activeTab === key ? "var(--accent)" : "var(--fg-mute)",
+                  borderBottom: `2px solid ${
+                    activeTab === key ? "var(--accent)" : "transparent"
+                  }`,
+                  background: "none",
+                  border: "none",
+                  borderBottomWidth: 2,
+                  borderBottomStyle: "solid",
+                  borderBottomColor:
+                    activeTab === key ? "var(--accent)" : "transparent",
+                  cursor: "pointer",
+                }}
+              >
+                {label}
+              </button>
+            ))}
+
+            <Divider />
+
+            <ToolbarButton title="Bold" onClick={() => wrapSelection("**")}>
+              <strong>B</strong>
+            </ToolbarButton>
+            <ToolbarButton title="Italic" onClick={() => wrapSelection("*")}>
+              <em>I</em>
+            </ToolbarButton>
+            <ToolbarButton
+              title="Inline code"
+              onClick={() => wrapSelection("`")}
+            >
+              &lt;&gt;
+            </ToolbarButton>
+            <ToolbarButton
+              title="Link"
+              onClick={() => wrapSelection("[", "](url)")}
+            >
+              🔗
+            </ToolbarButton>
+
+            <Divider />
+
+            <ToolbarButton
+              title="H1"
+              onClick={() => insertLine("# ")}
+            >
+              H1
+            </ToolbarButton>
+            <ToolbarButton
+              title="H2"
+              onClick={() => insertLine("## ")}
+            >
+              H2
+            </ToolbarButton>
+            <ToolbarButton
+              title="Blockquote"
+              onClick={() => insertLine("> ")}
+            >
+              ❝
+            </ToolbarButton>
+            <ToolbarButton
+              title="List item"
+              onClick={() => insertLine("- ")}
+            >
+              ≡
+            </ToolbarButton>
+            <ToolbarButton
+              title="Code block"
+              onClick={() => wrapSelection("\n```\n", "\n```")}
+            >
+              &#123;&#125;
+            </ToolbarButton>
+            <ToolbarButton
+              title="Image"
+              onClick={() => wrapSelection("![", "](url)")}
+            >
+              🖼
+            </ToolbarButton>
+          </div>
+
+          {/* Editor pane */}
+          <div
+            style={{
+              flex: 1,
+              display: "grid",
+              gridTemplateColumns:
+                activeTab === "split" ? "1fr 1fr" : "1fr",
+              minHeight: 500,
+            }}
+          >
+            {/* Edit pane */}
+            {showEdit && (
+              <textarea
+                ref={taRef}
+                value={body}
+                onChange={(e) => setBody(e.target.value)}
+                spellCheck={false}
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  padding: "24px 32px",
+                  border: "none",
+                  outline: "none",
+                  resize: "none",
+                  background: "var(--bg)",
+                  color: "var(--fg)",
+                  fontFamily: "var(--font-mono)",
+                  fontSize: 14,
+                  lineHeight: 1.7,
+                  borderRight:
+                    activeTab === "split"
+                      ? "1px solid var(--border)"
+                      : undefined,
+                  boxSizing: "border-box",
+                }}
+              />
+            )}
+
+            {/* Preview pane */}
+            {showPreview && (
+              <div
+                style={{
+                  overflowY: "auto",
+                  padding: "24px 32px",
+                  background: "var(--bg)",
+                }}
+              >
+                <div style={{ maxWidth: 680, margin: "0 auto" }}>
+                  {title && (
+                    <h1
+                      style={{
+                        fontFamily: "var(--font-serif)",
+                        fontSize: 36,
+                        margin: "0 0 8px",
+                        letterSpacing: "-0.02em",
+                        lineHeight: 1.15,
+                        color: "var(--fg)",
+                      }}
+                    >
+                      {title}
+                    </h1>
+                  )}
+                  {tags.length > 0 && (
+                    <div
+                      style={{
+                        display: "flex",
+                        gap: 6,
+                        marginBottom: 16,
+                        flexWrap: "wrap",
+                      }}
+                    >
+                      {tags.map((tag) => (
+                        <span
+                          key={tag}
+                          style={{
+                            background: "var(--accent-bg)",
+                            color: "var(--rust)",
+                            borderRadius: 999,
+                            fontSize: 11,
+                            fontWeight: 500,
+                            padding: "2px 8px",
+                          }}
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                  {coverImage && (
+                    <img
+                      src={coverImage}
+                      alt="обложка"
+                      style={{
+                        width: "100%",
+                        borderRadius: 8,
+                        marginBottom: 24,
+                        display: "block",
+                      }}
+                    />
+                  )}
+                  <PostBody body={body} />
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
     </form>
   );

@@ -7,6 +7,7 @@ export interface Post {
   tags: string[];
   cover_image: string;
   published: boolean;
+  views: number;
   created_at: string;
   updated_at: string;
 }

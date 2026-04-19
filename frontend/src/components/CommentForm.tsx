@@ -35,28 +35,88 @@ export function CommentForm({ slug }: Props) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="mt-4 space-y-2">
-      {error && <p className="text-red-500 text-sm">{error}</p>}
+    <form
+      onSubmit={handleSubmit}
+      style={{
+        background: "var(--bg-elev)",
+        border: "1px solid var(--border)",
+        borderRadius: 8,
+        padding: 16,
+        marginBottom: 32,
+      }}
+    >
+      {error && (
+        <p style={{ color: "var(--rust)", fontSize: 13, marginBottom: 8, fontFamily: "var(--font-mono)" }}>
+          {error}
+        </p>
+      )}
       <input
         value={author}
         onChange={(e) => setAuthor(e.target.value)}
         placeholder="Ваше имя"
-        className="w-full border border-stone-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-orange-400"
+        style={{
+          display: "block",
+          width: "100%",
+          border: "none",
+          borderBottom: "1px solid var(--border)",
+          background: "transparent",
+          fontSize: 14,
+          color: "var(--fg)",
+          padding: "6px 0",
+          marginBottom: 10,
+          outline: "none",
+          fontFamily: "var(--font-sans)",
+        }}
       />
       <textarea
         value={body}
         onChange={(e) => setBody(e.target.value)}
         placeholder="Написать комментарий..."
         rows={3}
-        className="w-full border border-stone-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-orange-400 resize-none"
+        style={{
+          display: "block",
+          width: "100%",
+          border: "none",
+          background: "transparent",
+          fontSize: 14,
+          color: "var(--fg)",
+          padding: "6px 0",
+          outline: "none",
+          resize: "vertical",
+          fontFamily: "var(--font-sans)",
+          lineHeight: 1.5,
+        }}
       />
-      <button
-        type="submit"
-        disabled={loading}
-        className="bg-orange-500 text-white text-sm font-semibold px-4 py-2 rounded-lg hover:bg-orange-600 disabled:opacity-50 transition-colors"
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginTop: 12,
+        }}
       >
-        {loading ? "Отправка..." : "Отправить"}
-      </button>
+        <span style={{ fontSize: 12, color: "var(--fg-faint)", fontFamily: "var(--font-mono)" }}>
+          без аккаунтов
+        </span>
+        <button
+          type="submit"
+          disabled={loading}
+          style={{
+            background: "var(--accent)",
+            color: "#fff",
+            fontSize: 13,
+            fontWeight: 600,
+            padding: "6px 16px",
+            border: "none",
+            borderRadius: 6,
+            cursor: loading ? "not-allowed" : "pointer",
+            opacity: loading ? 0.6 : 1,
+            fontFamily: "var(--font-sans)",
+          }}
+        >
+          {loading ? "Отправка..." : "Отправить"}
+        </button>
+      </div>
     </form>
   );
 }

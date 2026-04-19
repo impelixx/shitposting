@@ -122,3 +122,14 @@ func (h *PostsHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	_ = h.search.DeletePost(post.ID)
 	w.WriteHeader(http.StatusNoContent)
 }
+
+func (h *PostsHandler) View(w http.ResponseWriter, r *http.Request) {
+	slug := chi.URLParam(r, "slug")
+	views, err := h.repo.IncrementViews(r.Context(), slug)
+	if err != nil {
+		http.Error(w, "not found", http.StatusNotFound)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]int64{"views": views})
+}

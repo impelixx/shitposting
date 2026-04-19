@@ -4,24 +4,56 @@ interface Props {
   comments: Comment[];
 }
 
-function initials(name: string) {
-  return name.charAt(0).toUpperCase();
+function formatDate(dateStr: string) {
+  try {
+    return new Date(dateStr).toLocaleDateString("ru-RU", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    });
+  } catch {
+    return dateStr;
+  }
 }
 
 export function CommentList({ comments }: Props) {
   if (comments.length === 0) {
-    return <p className="text-sm text-stone-400">Комментариев пока нет. Будьте первым!</p>;
+    return (
+      <p style={{ fontSize: 14, color: "var(--fg-faint)", fontFamily: "var(--font-mono)", marginBottom: 24 }}>
+        Комментариев пока нет. Будьте первым!
+      </p>
+    );
   }
   return (
-    <ul className="space-y-4">
-      {comments.map((c) => (
-        <li key={c.id} className="flex gap-3">
-          <div className="w-8 h-8 rounded-full bg-orange-500 flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
-            {initials(c.author)}
+    <ul style={{ listStyle: "none", padding: 0, margin: "0 0 24px 0", display: "flex", flexDirection: "column", gap: 16 }}>
+      {comments.map((c, i) => (
+        <li key={c.id} style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
+          <div
+            style={{
+              width: 36,
+              height: 36,
+              borderRadius: "50%",
+              background: `oklch(0.7 0.15 ${50 + i * 30})`,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: "#fff",
+              fontWeight: 700,
+              fontSize: 14,
+              flexShrink: 0,
+              textTransform: "uppercase",
+            }}
+          >
+            {c.author.charAt(0).toUpperCase()}
           </div>
-          <div className="flex-1 bg-stone-100 rounded-lg px-4 py-2.5">
-            <p className="text-xs font-semibold text-stone-800 mb-1">{c.author}</p>
-            <p className="text-sm text-stone-600 leading-relaxed">{c.body}</p>
+          <div style={{ flex: 1 }}>
+            <div style={{ display: "flex", gap: 10, alignItems: "baseline", marginBottom: 4 }}>
+              <span style={{ fontWeight: 700, fontSize: 13, color: "var(--fg)" }}>{c.author}</span>
+              <span style={{ fontSize: 11, color: "var(--fg-faint)", fontFamily: "var(--font-mono)" }}>
+                {formatDate(c.created_at)}
+              </span>
+            </div>
+            <p style={{ fontSize: 14, lineHeight: 1.55, color: "var(--fg-mute)", margin: 0 }}>{c.body}</p>
           </div>
         </li>
       ))}

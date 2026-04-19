@@ -27,6 +27,7 @@ export const api = {
   listComments: (slug: string) => apiFetch<Comment[]>(`/api/posts/${slug}/comments`),
   listTags: () => apiFetch<Tag[]>("/api/tags"),
   search: (q: string) => apiFetch<SearchResult[]>(`/api/search?q=${encodeURIComponent(q)}`),
+  trackView: (slug: string) => apiFetch<{ views: number }>(`/api/posts/${slug}/view`, { method: "POST" }),
 
   // auth
   login: (username: string, password: string) =>
@@ -40,14 +41,14 @@ export const api = {
   listAllPosts: (token: string) =>
     apiFetch<Post[]>("/api/admin/posts", { headers: { Authorization: `Bearer ${token}` } }),
 
-  createPost: (token: string, data: Omit<Post, "id" | "created_at" | "updated_at">) =>
+  createPost: (token: string, data: Omit<Post, "id" | "created_at" | "updated_at" | "views">) =>
     apiFetch<Post>("/api/posts", {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
       body: JSON.stringify(data),
     }),
 
-  updatePost: (token: string, slug: string, data: Omit<Post, "id" | "created_at" | "updated_at">) =>
+  updatePost: (token: string, slug: string, data: Omit<Post, "id" | "created_at" | "updated_at" | "views">) =>
     apiFetch<Post>(`/api/posts/${slug}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
