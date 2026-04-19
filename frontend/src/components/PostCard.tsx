@@ -13,20 +13,33 @@ function readingTime(body: string) {
 }
 
 export function PostCard({ post, commentCount = 0 }: Props) {
+  const href = `/r/${post.slug}`;
+
   return (
-    <article style={{ paddingBottom: "20px", marginBottom: "20px", borderBottom: "1px solid #f5f5f4" }}>
+    <article style={{ paddingBottom: "24px", marginBottom: "24px", borderBottom: "1px solid #f5f5f4" }}>
+      {post.cover_image && (
+        <Link href={href} style={{ display: "block", marginBottom: "14px", borderRadius: "8px", overflow: "hidden", lineHeight: 0 }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={post.cover_image}
+            alt={post.title}
+            style={{ width: "100%", height: "180px", objectFit: "cover", display: "block", transition: "opacity 0.15s" }}
+          />
+        </Link>
+      )}
+
       <div style={{ display: "flex", gap: "6px", flexWrap: "wrap", marginBottom: "8px" }}>
         {post.tags.map((t) => (
           <TagPill key={t} tag={t} href={`/tags/${t}`} />
         ))}
       </div>
+
       <div style={{ display: "flex", gap: "14px", alignItems: "flex-start" }}>
         <DateBadge dateStr={post.created_at} />
-        <div>
+        <div style={{ flex: 1 }}>
           <Link
-            href={`/posts/${post.slug}`}
+            href={href}
             style={{
-              fontFamily: "Georgia, serif",
               fontSize: "17px",
               fontWeight: 700,
               color: "#1c1917",
@@ -35,13 +48,14 @@ export function PostCard({ post, commentCount = 0 }: Props) {
               display: "block",
               marginBottom: "5px",
             }}
-            className="hover:text-orange-600 transition-colors"
           >
             {post.title}
           </Link>
-          <p style={{ fontSize: "13px", color: "#57534e", lineHeight: 1.6 }}>
-            {post.excerpt}
-          </p>
+          {post.excerpt && (
+            <p style={{ fontSize: "13px", color: "#57534e", lineHeight: 1.6 }}>
+              {post.excerpt}
+            </p>
+          )}
           <div style={{ display: "flex", gap: "12px", marginTop: "6px", fontSize: "11px", color: "#a8a29e" }}>
             <span>{readingTime(post.body)} мин чтения</span>
             <span>💬 {commentCount}</span>

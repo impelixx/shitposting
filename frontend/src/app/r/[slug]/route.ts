@@ -18,7 +18,8 @@ async function mdToHtml(md: string): Promise<string> {
     .use(rehypeRaw)
     .use(rehypeStringify)
     .process(md);
-  return String(result);
+  // Telegram IV does not allow <img> inside <p> — unwrap them
+  return String(result).replace(/<p>(<img[^>]*\/>)<\/p>/g, "$1");
 }
 
 function esc(s: string) {
@@ -116,6 +117,7 @@ export async function GET(
     </address>
     <hr />
     <div class="content">${contentHtml}</div>
+
     <footer>
       <a href="/">← Все статьи</a>
       <span>impelix.dev/r/${slug}</span>

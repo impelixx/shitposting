@@ -65,7 +65,7 @@ export function SearchBar() {
           overflowY: "auto",
         }}>
           {results.map((r) => (
-            <Link key={r.id} href={`/posts/${r.slug}`} style={{ display: "block", padding: "8px 12px", borderBottom: "1px solid #27272a", textDecoration: "none" }}>
+            <Link key={r.id} href={`/r/${r.slug}`} style={{ display: "block", padding: "8px 12px", borderBottom: "1px solid #27272a", textDecoration: "none" }}>
               <div style={{ fontFamily: MONO, fontSize: "13px", color: "#f97316" }}>{"// "}{r.title}</div>
               {r.excerpt && <div style={{ fontFamily: MONO, fontSize: "11px", color: "#71717a", marginTop: "2px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{r.excerpt}</div>}
             </Link>
