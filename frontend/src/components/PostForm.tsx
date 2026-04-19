@@ -155,13 +155,13 @@ export function PostForm({ initialPost }: Props) {
             />
             опубликовать
           </label>
-          {coverImage && (
+          {slug && (
             <Link
-              href={`/posts/${slug || "#"}`}
+              href={`/r/${slug}`}
               target="_blank"
               style={{ fontSize: "12px", color: "#78716c", textDecoration: "none", border: "1px solid #44403c", borderRadius: "4px", padding: "4px 10px" }}
             >
-              предпросмотр ↗
+              читалка ↗
             </Link>
           )}
           <button

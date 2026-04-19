@@ -68,9 +68,17 @@ export default async function ArticlePage({ params }: Props) {
       )}
 
       <div style={{ maxWidth: "640px", margin: "0 auto", padding: post.cover_image ? "0 24px 40px" : "40px 24px" }}>
-        <Link href="/" style={{ fontSize: "14px", color: "#f97316", textDecoration: "none", display: "block", marginBottom: "24px", marginTop: post.cover_image ? "0" : undefined }}>
-          ← Все статьи
-        </Link>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px", marginTop: post.cover_image ? "0" : undefined }}>
+          <Link href="/" style={{ fontSize: "14px", color: "#f97316", textDecoration: "none" }}>
+            ← Все статьи
+          </Link>
+          <Link
+            href={`/r/${post.slug}`}
+            style={{ fontSize: "12px", color: "#a8a29e", textDecoration: "none", border: "1px solid #e7e5e4", borderRadius: "4px", padding: "4px 10px" }}
+          >
+            режим чтения ↗
+          </Link>
+        </div>
 
         <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginBottom: "16px" }}>
           {post.tags.map((t) => <TagPill key={t} tag={t} href={`/tags/${t}`} />)}
