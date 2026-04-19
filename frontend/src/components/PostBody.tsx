@@ -2,13 +2,56 @@
 import MDPreview from "@uiw/react-markdown-preview";
 import React from "react";
 
-function CodePre({ children, ...props }: React.HTMLAttributes<HTMLPreElement>) {
+const CODE_BG = "oklch(0.24 0.028 55)";
+const CODE_BORDER = "1px solid oklch(0.32 0.03 55)";
+
+function CodePre({ children, className, style, ...props }: React.HTMLAttributes<HTMLPreElement>) {
+  // Find language from first code child's className
   const code = React.Children.toArray(children).find(
     (c): c is React.ReactElement<{ className?: string }> => React.isValidElement(c)
   );
-  const lang = code?.props?.className?.replace(/language-/, "") ?? "";
+  const lang =
+    (code?.props?.className ?? "").match(/language-(\w+)/)?.[1] ??
+    (className ?? "").match(/language-(\w+)/)?.[1] ??
+    "";
+
   return (
-    <pre {...props} data-language={lang || undefined}>
+    <pre
+      className={className}
+      {...props}
+      style={{
+        background: CODE_BG,
+        borderRadius: 10,
+        padding: "20px 24px",
+        paddingTop: lang ? 40 : 20,
+        border: CODE_BORDER,
+        position: "relative",
+        overflowX: "auto",
+        margin: "20px 0",
+        ...style,
+      }}
+    >
+      {lang && (
+        <span
+          style={{
+            position: "absolute",
+            top: 10,
+            right: 14,
+            fontSize: 10,
+            fontFamily: "var(--font-mono)",
+            textTransform: "uppercase",
+            letterSpacing: "0.1em",
+            color: "oklch(0.72 0.12 55)",
+            background: "oklch(0.30 0.03 55)",
+            padding: "2px 8px",
+            borderRadius: 4,
+            userSelect: "none",
+            pointerEvents: "none",
+          }}
+        >
+          {lang}
+        </span>
+      )}
       {children}
     </pre>
   );
@@ -18,7 +61,6 @@ export function PostBody({ body }: { body: string }) {
   return (
     <>
       <style>{`
-        .post-body { /* reset */ }
         .post-body .wmde-markdown {
           background: transparent !important;
           color: var(--fg) !important;
@@ -44,7 +86,8 @@ export function PostBody({ body }: { body: string }) {
         .post-body .wmde-markdown h3 { font-size: 18px !important; }
         .post-body .wmde-markdown p { margin-bottom: 1.2em !important; }
         .post-body .wmde-markdown a { color: var(--accent) !important; }
-        .post-body .wmde-markdown code {
+        /* inline code */
+        .post-body .wmde-markdown :not(pre) > code {
           background: var(--accent-bg) !important;
           color: var(--rust) !important;
           font-family: var(--font-mono) !important;
@@ -52,29 +95,7 @@ export function PostBody({ body }: { body: string }) {
           padding: 2px 6px !important;
           font-size: 14px !important;
         }
-        .post-body .wmde-markdown pre {
-          background: oklch(0.24 0.028 55) !important;
-          border-radius: 10px !important;
-          padding: 20px 24px !important;
-          padding-top: 36px !important;
-          border: 1px solid oklch(0.32 0.03 55) !important;
-          position: relative !important;
-          overflow: auto !important;
-        }
-        .post-body .wmde-markdown pre[data-language]::before {
-          content: attr(data-language);
-          position: absolute;
-          top: 10px;
-          right: 14px;
-          font-size: 10px;
-          font-family: var(--font-mono);
-          text-transform: uppercase;
-          letter-spacing: 0.1em;
-          color: oklch(0.72 0.12 55);
-          background: oklch(0.30 0.03 55);
-          padding: 2px 8px;
-          border-radius: 4px;
-        }
+        /* code inside pre — reset to our palette */
         .post-body .wmde-markdown pre code {
           background: transparent !important;
           color: oklch(0.93 0.018 75) !important;
@@ -82,6 +103,7 @@ export function PostBody({ body }: { body: string }) {
           padding: 0 !important;
           font-family: var(--font-mono) !important;
           line-height: 1.7 !important;
+          border-radius: 0 !important;
         }
         /* syntax tokens — warm palette */
         .post-body .token.comment,.post-body .token.prolog { color: oklch(0.58 0.025 55); font-style: italic; }
@@ -93,6 +115,13 @@ export function PostBody({ body }: { body: string }) {
         .post-body .token.property,.post-body .token.tag { color: oklch(0.68 0.18 25); }
         .post-body .token.attr-name,.post-body .token.selector { color: oklch(0.74 0.12 85); }
         .post-body .token.variable,.post-body .token.regex { color: oklch(0.78 0.14 75); }
+        /* copy button from wmde */
+        .post-body .wmde-markdown .copied {
+          position: absolute !important;
+          top: 8px !important;
+          left: 14px !important;
+          opacity: 0.5 !important;
+        }
         .post-body .wmde-markdown blockquote {
           border-left: 3px solid var(--accent) !important;
           color: var(--fg-mute) !important;
@@ -106,7 +135,13 @@ export function PostBody({ body }: { body: string }) {
         .post-body .wmde-markdown th,
         .post-body .wmde-markdown td { border: 1px solid var(--border) !important; padding: 8px 12px !important; }
         .post-body .wmde-markdown th { background: var(--bg-sunken, oklch(0.96 0.014 80)) !important; font-weight: 600 !important; }
-        .post-body .wmde-markdown img { max-width: 100% !important; border-radius: 6px !important; }
+        /* images: transparent bg, blend so white areas match cream page */
+        .post-body .wmde-markdown img {
+          max-width: 100% !important;
+          border-radius: 6px !important;
+          background: transparent !important;
+          mix-blend-mode: multiply !important;
+        }
         .post-body .wmde-markdown hr { border-top: 1px solid var(--border) !important; border-bottom: none !important; }
       `}</style>
       <div className="post-body" data-color-mode="light">

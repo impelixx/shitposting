@@ -123,6 +123,33 @@ export function PostForm({ initialPost }: Props) {
   const [activeTab, setActiveTab] = useState<TabKey>("split");
   const [langPickerOpen, setLangPickerOpen] = useState(false);
 
+  // ── autosave to server ──
+  const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
+  const autoSavedSlugRef = useRef<string | null>(initialPost?.slug ?? null);
+
+  useEffect(() => {
+    if (!token || !title || !slug) return;
+    setSaveStatus("idle");
+    const t = setTimeout(async () => {
+      setSaveStatus("saving");
+      const data = { title, slug, excerpt, body, cover_image: coverImage, tags, published: false };
+      try {
+        if (autoSavedSlugRef.current) {
+          await api.updatePost(token, autoSavedSlugRef.current, { ...data, published });
+        } else {
+          await api.createPost(token, data);
+          autoSavedSlugRef.current = slug;
+        }
+        setSaveStatus("saved");
+        setTimeout(() => setSaveStatus("idle"), 2000);
+      } catch {
+        setSaveStatus("error");
+      }
+    }, 2000);
+    return () => clearTimeout(t);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [title, slug, excerpt, body, coverImage, tags]);
+
   // ── close lang picker on outside click ──
   useEffect(() => {
     if (!langPickerOpen) return;
@@ -243,6 +270,7 @@ export function PostForm({ initialPost }: Props) {
         await api.createPost(token, data);
       }
       setPublished(publishedValue);
+      try { localStorage.removeItem(draftKey); } catch {}
       router.push("/admin");
     } catch {
       setError("Ошибка при сохранении");
