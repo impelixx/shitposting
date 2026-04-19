@@ -14,7 +14,7 @@ export function Navbar({ children }: Props) {
             href="/"
             style={{ fontFamily: "Georgia, serif", color: "#fafaf9", fontSize: "22px", fontWeight: 700, lineHeight: 1, textDecoration: "none", display: "block" }}
           >
-            Мой блог
+            🏝️ Мой блог
           </Link>
           <p style={{ color: "#78716c", fontSize: "12px", marginTop: "4px" }}>
             Пишу обо всём что приходит в голову
