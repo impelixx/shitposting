@@ -3,9 +3,15 @@ import { Comment, Post, SearchResult, Tag } from "./types";
 const BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
 
 async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(`${BASE}${path}`, init);
-  if (!res.ok) throw new Error(`API ${path} → ${res.status}`);
-  return res.json() as Promise<T>;
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 5000);
+  try {
+    const res = await fetch(`${BASE}${path}`, { signal: controller.signal, ...init });
+    if (!res.ok) throw new Error(`API ${path} → ${res.status}`);
+    return res.json() as Promise<T>;
+  } finally {
+    clearTimeout(timeout);
+  }
 }
 
 export const api = {
