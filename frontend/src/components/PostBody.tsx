@@ -1,5 +1,18 @@
 "use client";
 import MDPreview from "@uiw/react-markdown-preview";
+import React from "react";
+
+function CodePre({ children, ...props }: React.HTMLAttributes<HTMLPreElement>) {
+  const code = React.Children.toArray(children).find(
+    (c): c is React.ReactElement<{ className?: string }> => React.isValidElement(c)
+  );
+  const lang = code?.props?.className?.replace(/language-/, "") ?? "";
+  return (
+    <pre {...props} data-language={lang || undefined}>
+      {children}
+    </pre>
+  );
+}
 
 export function PostBody({ body }: { body: string }) {
   return (
@@ -43,9 +56,24 @@ export function PostBody({ body }: { body: string }) {
           background: oklch(0.24 0.028 55) !important;
           border-radius: 10px !important;
           padding: 20px 24px !important;
+          padding-top: 36px !important;
           border: 1px solid oklch(0.32 0.03 55) !important;
           position: relative !important;
           overflow: auto !important;
+        }
+        .post-body .wmde-markdown pre[data-language]::before {
+          content: attr(data-language);
+          position: absolute;
+          top: 10px;
+          right: 14px;
+          font-size: 10px;
+          font-family: var(--font-mono);
+          text-transform: uppercase;
+          letter-spacing: 0.1em;
+          color: oklch(0.72 0.12 55);
+          background: oklch(0.30 0.03 55);
+          padding: 2px 8px;
+          border-radius: 4px;
         }
         .post-body .wmde-markdown pre code {
           background: transparent !important;
@@ -82,7 +110,11 @@ export function PostBody({ body }: { body: string }) {
         .post-body .wmde-markdown hr { border-top: 1px solid var(--border) !important; border-bottom: none !important; }
       `}</style>
       <div className="post-body" data-color-mode="light">
-        <MDPreview source={body} style={{ backgroundColor: "transparent" }} />
+        <MDPreview
+          source={body}
+          style={{ backgroundColor: "transparent" }}
+          components={{ pre: CodePre as React.FC<React.HTMLAttributes<HTMLPreElement>> }}
+        />
       </div>
     </>
   );
