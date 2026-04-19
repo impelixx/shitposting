@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import { Metadata } from "next";
 import { api } from "@/lib/api";
 import { Navbar } from "@/components/Navbar";
 import { DateBadge } from "@/components/DateBadge";
@@ -12,13 +13,31 @@ interface Props {
   params: Promise<{ slug: string }>;
 }
 
-export const revalidate = 60;
+export const revalidate = 0;
 
-export async function generateMetadata({ params }: Props) {
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const post = await api.getPost(slug).catch(() => null);
   if (!post) return {};
-  return { title: post.title, description: post.excerpt };
+
+  const images = post.cover_image ? [{ url: post.cover_image, width: 1200, height: 630 }] : [];
+
+  return {
+    title: post.title,
+    description: post.excerpt || post.body.slice(0, 160),
+    openGraph: {
+      title: post.title,
+      description: post.excerpt || post.body.slice(0, 160),
+      type: "article",
+      images,
+    },
+    twitter: {
+      card: post.cover_image ? "summary_large_image" : "summary",
+      title: post.title,
+      description: post.excerpt || post.body.slice(0, 160),
+      images: post.cover_image ? [post.cover_image] : [],
+    },
+  };
 }
 
 export default async function ArticlePage({ params }: Props) {
@@ -33,8 +52,23 @@ export default async function ArticlePage({ params }: Props) {
   return (
     <>
       <Navbar />
-      <div style={{ maxWidth: "640px", margin: "0 auto", padding: "40px 24px" }}>
-        <Link href="/" style={{ fontSize: "14px", color: "#f97316", textDecoration: "none", display: "block", marginBottom: "24px" }}>
+
+      {post.cover_image && (
+        <div style={{ width: "100%", height: "340px", overflow: "hidden", position: "relative" }}>
+          <img
+            src={post.cover_image}
+            alt={post.title}
+            style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+          />
+          <div style={{
+            position: "absolute", inset: 0,
+            background: "linear-gradient(to bottom, transparent 40%, rgba(250,250,249,0.95) 100%)",
+          }} />
+        </div>
+      )}
+
+      <div style={{ maxWidth: "640px", margin: "0 auto", padding: post.cover_image ? "0 24px 40px" : "40px 24px" }}>
+        <Link href="/" style={{ fontSize: "14px", color: "#f97316", textDecoration: "none", display: "block", marginBottom: "24px", marginTop: post.cover_image ? "0" : undefined }}>
           ← Все статьи
         </Link>
 

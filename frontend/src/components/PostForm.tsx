@@ -1,10 +1,35 @@
 "use client";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { api } from "@/lib/api";
 import { auth } from "@/lib/auth";
 import { Post } from "@/lib/types";
 import { MarkdownEditor } from "./MarkdownEditor";
+
+const MONO = "ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, monospace";
+const BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
+
+const fieldStyle: React.CSSProperties = {
+  border: "1px solid #e7e5e4",
+  borderRadius: "6px",
+  padding: "6px 10px",
+  fontSize: "12px",
+  fontFamily: MONO,
+  background: "#fff",
+  color: "#1c1917",
+  outline: "none",
+  width: "100%",
+};
+
+const labelStyle: React.CSSProperties = {
+  fontSize: "10px",
+  color: "#78716c",
+  textTransform: "uppercase",
+  letterSpacing: "1px",
+  marginBottom: "4px",
+  display: "block",
+};
 
 interface Props {
   initialPost?: Post;
@@ -12,23 +37,48 @@ interface Props {
 
 export function PostForm({ initialPost }: Props) {
   const router = useRouter();
+  const token = auth.getToken() ?? undefined;
+  const coverRef = useRef<HTMLInputElement>(null);
+
   const [title, setTitle] = useState(initialPost?.title ?? "");
   const [slug, setSlug] = useState(initialPost?.slug ?? "");
   const [excerpt, setExcerpt] = useState(initialPost?.excerpt ?? "");
   const [tags, setTags] = useState(initialPost?.tags.join(", ") ?? "");
   const [body, setBody] = useState(initialPost?.body ?? "");
+  const [coverImage, setCoverImage] = useState(initialPost?.cover_image ?? "");
   const [published, setPublished] = useState(initialPost?.published ?? false);
   const [loading, setLoading] = useState(false);
+  const [coverUploading, setCoverUploading] = useState(false);
   const [error, setError] = useState("");
+
+  const handleCoverUpload = async (file: File) => {
+    if (!token) return;
+    setCoverUploading(true);
+    try {
+      const form = new FormData();
+      form.append("file", file);
+      const res = await fetch(`${BASE}/api/upload`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+        body: form,
+      });
+      if (!res.ok) throw new Error();
+      const { url } = await res.json();
+      setCoverImage(url);
+    } catch {
+      setError("Ошибка загрузки обложки");
+    } finally {
+      setCoverUploading(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError("");
-    const token = auth.getToken();
     if (!token) { router.push("/login"); return; }
     const data = {
-      title, slug, excerpt, body,
+      title, slug, excerpt, body, cover_image: coverImage,
       tags: tags.split(",").map((t) => t.trim()).filter(Boolean),
       published,
     };
@@ -47,31 +97,175 @@ export function PostForm({ initialPost }: Props) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 max-w-3xl mx-auto px-6 py-8">
-      <h1 className="text-2xl font-bold mb-4" style={{ color: "#1c1917" }}>
-        {initialPost ? "Редактировать" : "Новая статья"}
-      </h1>
-      {error && <p className="text-red-500 text-sm">{error}</p>}
-      <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Заголовок"
-        className="w-full border border-stone-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-orange-400" />
-      <input value={slug} onChange={(e) => setSlug(e.target.value)} placeholder="slug (напр. moya-statya)"
-        className="w-full border border-stone-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-orange-400" />
-      <input value={excerpt} onChange={(e) => setExcerpt(e.target.value)} placeholder="Краткое описание"
-        className="w-full border border-stone-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-orange-400" />
-      <input value={tags} onChange={(e) => setTags(e.target.value)} placeholder="Теги через запятую: rust, личное"
-        className="w-full border border-stone-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-orange-400" />
-      <MarkdownEditor value={body} onChange={setBody} />
-      <label className="flex items-center gap-2 text-sm text-stone-600">
-        <input type="checkbox" checked={published} onChange={(e) => setPublished(e.target.checked)} />
-        Опубликовать
-      </label>
-      <div className="flex gap-3">
-        <button type="submit" disabled={loading}
-          className="bg-orange-500 text-white text-sm font-semibold px-5 py-2 rounded-lg hover:bg-orange-600 disabled:opacity-50 transition-colors">
-          {loading ? "Сохранение..." : "Сохранить"}
-        </button>
-        <button type="button" onClick={() => router.push("/admin")}
-          className="text-sm text-stone-500 hover:underline">Отмена</button>
+    <form
+      onSubmit={handleSubmit}
+      style={{ display: "flex", flexDirection: "column", minHeight: "100vh", background: "#fafaf9", fontFamily: MONO }}
+    >
+      {/* Sticky top bar */}
+      <div style={{
+        background: "#1c1917",
+        borderBottom: "1px solid #44403c",
+        padding: "0 24px",
+        height: "52px",
+        display: "flex",
+        alignItems: "center",
+        gap: "12px",
+        position: "sticky",
+        top: 0,
+        zIndex: 10,
+      }}>
+        <Link href="/admin" style={{ color: "#78716c", fontSize: "12px", textDecoration: "none", flexShrink: 0 }}>
+          ← назад
+        </Link>
+        <span style={{ color: "#44403c", fontSize: "12px" }}>|</span>
+        <span style={{ color: "#57534e", fontSize: "12px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+          {initialPost ? `admin / posts / ${initialPost.slug} / edit` : "admin / posts / new"}
+        </span>
+        <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: "16px", flexShrink: 0 }}>
+          {error && <span style={{ color: "#f87171", fontSize: "12px" }}>{error}</span>}
+          <label style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "12px", color: "#a8a29e", cursor: "pointer" }}>
+            <input
+              type="checkbox"
+              checked={published}
+              onChange={(e) => setPublished(e.target.checked)}
+              style={{ accentColor: "#f97316", cursor: "pointer" }}
+            />
+            опубликовать
+          </label>
+          {coverImage && (
+            <Link
+              href={`/posts/${slug || "#"}`}
+              target="_blank"
+              style={{ fontSize: "12px", color: "#78716c", textDecoration: "none", border: "1px solid #44403c", borderRadius: "4px", padding: "4px 10px" }}
+            >
+              предпросмотр ↗
+            </Link>
+          )}
+          <button
+            type="submit"
+            disabled={loading}
+            style={{
+              background: loading ? "#57534e" : "#f97316",
+              color: "#fff",
+              border: "none",
+              borderRadius: "6px",
+              padding: "6px 18px",
+              fontSize: "12px",
+              fontWeight: 600,
+              cursor: loading ? "not-allowed" : "pointer",
+              fontFamily: MONO,
+            }}
+          >
+            {loading ? "сохранение..." : "сохранить"}
+          </button>
+        </div>
+      </div>
+
+      {/* Cover image zone */}
+      <input
+        ref={coverRef}
+        type="file"
+        accept=".jpg,.jpeg,.png,.webp,.gif"
+        style={{ display: "none" }}
+        onChange={(e) => {
+          const f = e.target.files?.[0];
+          if (f) handleCoverUpload(f);
+          e.target.value = "";
+        }}
+      />
+      <div
+        onClick={() => coverRef.current?.click()}
+        style={{
+          position: "relative",
+          width: "100%",
+          height: coverImage ? "260px" : "80px",
+          background: coverImage ? "transparent" : "#f5f5f4",
+          borderBottom: "1px solid #e7e5e4",
+          cursor: "pointer",
+          overflow: "hidden",
+          transition: "height 0.2s",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        {coverImage ? (
+          <>
+            <img
+              src={coverImage}
+              alt="обложка"
+              style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+            />
+            <div style={{
+              position: "absolute", inset: 0,
+              background: "linear-gradient(to top, rgba(28,25,23,0.6) 0%, transparent 60%)",
+              display: "flex", alignItems: "flex-end", justifyContent: "space-between",
+              padding: "16px 24px",
+            }}>
+              <span style={{ color: "rgba(255,255,255,0.7)", fontSize: "11px" }}>нажмите чтобы сменить обложку</span>
+              <button
+                type="button"
+                onClick={(e) => { e.stopPropagation(); setCoverImage(""); }}
+                style={{
+                  background: "rgba(28,25,23,0.7)", border: "none", color: "#a8a29e",
+                  fontSize: "11px", padding: "4px 10px", borderRadius: "4px", cursor: "pointer", fontFamily: MONO,
+                }}
+              >
+                убрать
+              </button>
+            </div>
+          </>
+        ) : (
+          <span style={{ color: "#a8a29e", fontSize: "12px" }}>
+            {coverUploading ? "загружаю..." : "+ добавить обложку"}
+          </span>
+        )}
+      </div>
+
+      {/* Content */}
+      <div style={{ flex: 1, maxWidth: "960px", width: "100%", margin: "0 auto", padding: "28px 24px", display: "flex", flexDirection: "column", gap: "20px" }}>
+        <input
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          placeholder="Заголовок статьи..."
+          style={{
+            border: "none",
+            borderBottom: "2px solid #e7e5e4",
+            background: "transparent",
+            fontSize: "26px",
+            fontWeight: 700,
+            color: "#1c1917",
+            fontFamily: MONO,
+            outline: "none",
+            padding: "8px 0 12px",
+            width: "100%",
+          }}
+          onFocus={(e) => (e.target.style.borderBottomColor = "#f97316")}
+          onBlur={(e) => (e.target.style.borderBottomColor = "#e7e5e4")}
+        />
+
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 2fr", gap: "14px" }}>
+          <div>
+            <label style={labelStyle}>slug</label>
+            <input value={slug} onChange={(e) => setSlug(e.target.value)} placeholder="moya-statya" style={fieldStyle}
+              onFocus={(e) => (e.target.style.borderColor = "#f97316")}
+              onBlur={(e) => (e.target.style.borderColor = "#e7e5e4")} />
+          </div>
+          <div>
+            <label style={labelStyle}>теги</label>
+            <input value={tags} onChange={(e) => setTags(e.target.value)} placeholder="rust, личное" style={fieldStyle}
+              onFocus={(e) => (e.target.style.borderColor = "#f97316")}
+              onBlur={(e) => (e.target.style.borderColor = "#e7e5e4")} />
+          </div>
+          <div>
+            <label style={labelStyle}>описание</label>
+            <input value={excerpt} onChange={(e) => setExcerpt(e.target.value)} placeholder="Краткое описание для карточки и Telegram" style={fieldStyle}
+              onFocus={(e) => (e.target.style.borderColor = "#f97316")}
+              onBlur={(e) => (e.target.style.borderColor = "#e7e5e4")} />
+          </div>
+        </div>
+
+        <MarkdownEditor value={body} onChange={setBody} token={token} />
       </div>
     </form>
   );

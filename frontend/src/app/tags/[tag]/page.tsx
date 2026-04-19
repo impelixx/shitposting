@@ -2,16 +2,25 @@ import { Navbar } from "@/components/Navbar";
 import { api } from "@/lib/api";
 import { PostCard } from "@/components/PostCard";
 import { Sidebar } from "@/components/Sidebar";
+import { Pagination } from "@/components/Pagination";
 
 interface Props {
   params: Promise<{ tag: string }>;
+  searchParams: Promise<{ page?: string }>;
 }
 
-export const revalidate = 60;
+export const revalidate = 0;
 
-export default async function TagPage({ params }: Props) {
+const PAGE_SIZE = 10;
+
+export default async function TagPage({ params, searchParams }: Props) {
   const { tag } = await params;
-  const posts = await api.listPosts(tag).catch(() => []);
+  const { page: pageStr } = await searchParams;
+  const page = Math.max(0, parseInt(pageStr ?? "0") || 0);
+
+  const raw = await api.listPosts(tag, PAGE_SIZE + 1, page * PAGE_SIZE).catch(() => []);
+  const hasNext = raw.length > PAGE_SIZE;
+  const posts = raw.slice(0, PAGE_SIZE);
 
   return (
     <>
@@ -22,6 +31,7 @@ export default async function TagPage({ params }: Props) {
           <h1 style={{ fontSize: "24px", fontWeight: 700, color: "#1c1917", marginBottom: "24px" }}>#{tag}</h1>
           {posts.length === 0 && <p style={{ color: "#a8a29e", fontSize: "14px" }}>Статей с этим тегом нет.</p>}
           {posts.map((post) => <PostCard key={post.id} post={post} />)}
+          <Pagination page={page} hasNext={hasNext} basePath={`/tags/${tag}`} />
         </main>
         <Sidebar />
       </div>

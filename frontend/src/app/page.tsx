@@ -3,11 +3,23 @@ import { Navbar } from "@/components/Navbar";
 import { PostCard } from "@/components/PostCard";
 import { Sidebar } from "@/components/Sidebar";
 import { SearchBar } from "@/components/SearchBar";
+import { Pagination } from "@/components/Pagination";
 
-export const revalidate = 60;
+export const revalidate = 0;
 
-export default async function HomePage() {
-  const posts = await api.listPosts().catch(() => []);
+const PAGE_SIZE = 10;
+
+interface Props {
+  searchParams: Promise<{ page?: string }>;
+}
+
+export default async function HomePage({ searchParams }: Props) {
+  const { page: pageStr } = await searchParams;
+  const page = Math.max(0, parseInt(pageStr ?? "0") || 0);
+
+  const raw = await api.listPosts(undefined, PAGE_SIZE + 1, page * PAGE_SIZE).catch(() => []);
+  const hasNext = raw.length > PAGE_SIZE;
+  const posts = raw.slice(0, PAGE_SIZE);
 
   return (
     <>
@@ -32,6 +44,7 @@ export default async function HomePage() {
           {posts.map((post) => (
             <PostCard key={post.id} post={post} />
           ))}
+          <Pagination page={page} hasNext={hasNext} basePath="/" />
         </main>
         <Sidebar />
       </div>
