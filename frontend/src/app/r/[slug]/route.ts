@@ -4,6 +4,7 @@ import remarkParse from "remark-parse";
 import remarkGfm from "remark-gfm";
 import remarkRehype from "remark-rehype";
 import rehypeRaw from "rehype-raw";
+import rehypePrism from "rehype-prism-plus";
 import rehypeStringify from "rehype-stringify";
 import { api } from "@/lib/api";
 
@@ -16,10 +17,16 @@ async function mdToHtml(md: string): Promise<string> {
     .use(remarkGfm)
     .use(remarkRehype, { allowDangerousHtml: true })
     .use(rehypeRaw)
+    .use(rehypePrism, { ignoreMissing: true })
     .use(rehypeStringify)
     .process(md);
-  // Telegram IV does not allow <img> inside <p> — unwrap them
-  return String(result).replace(/<p>(<img[^>]*\/>)<\/p>/g, "$1");
+  let html = String(result);
+  // Telegram IV: unwrap <img> from <p>
+  html = html.replace(/<p>(<img[^>]*\/>)<\/p>/g, "$1");
+  // Add data-language attribute for the language badge
+  html = html.replace(/<pre><code class="language-(\w+)"/g,
+    (_, lang) => `<pre data-language="${lang}"><code class="language-${lang}"`);
+  return html;
 }
 
 function esc(s: string) {
@@ -92,8 +99,26 @@ export async function GET(
     .content img{max-width:100%;border-radius:6px;margin:16px 0;display:block}
     .content a{color:#f97316}
     .content code{background:#f5f5f4;color:#c2410c;border-radius:3px;padding:2px 6px;font-size:15px;font-family:${MONO}}
-    .content pre{background:#1c1917;border-radius:8px;padding:20px;margin:20px 0;overflow-x:auto}
-    .content pre code{background:transparent;color:#e7e5e4;font-size:14px;padding:0}
+    .content pre{background:#1c1917;border-radius:8px;padding:20px;margin:20px 0;overflow-x:auto;position:relative}
+    .content pre code{background:transparent;color:#e7e5e4;font-size:14px;padding:0;border-radius:0}
+    /* language badge */
+    .content pre[class*="language-"]::before{content:attr(data-language);position:absolute;top:10px;right:14px;font-size:10px;color:#57534e;text-transform:uppercase;letter-spacing:.08em;font-family:${MONO}}
+    /* Prism tokens — dark theme */
+    .token.comment,.token.prolog,.token.doctype,.token.cdata{color:#6b7280;font-style:italic}
+    .token.punctuation{color:#9ca3af}
+    .token.namespace{opacity:.7}
+    .token.property,.token.tag,.token.boolean,.token.number,.token.constant,.token.symbol,.token.deleted{color:#f87171}
+    .token.selector,.token.attr-name,.token.string,.token.char,.token.builtin,.token.inserted{color:#86efac}
+    .token.operator,.token.entity,.token.url,.language-css .token.string,.style .token.string{color:#fcd34d}
+    .token.atrule,.token.attr-value,.token.keyword{color:#93c5fd}
+    .token.function,.token.class-name{color:#fb923c}
+    .token.regex,.token.important,.token.variable{color:#fde68a}
+    .token.important,.token.bold{font-weight:700}
+    .token.italic{font-style:italic}
+    .token.entity{cursor:help}
+    /* line numbers */
+    .code-line{display:block;padding-left:0}
+    .line-number::before{display:inline-block;width:1.5rem;margin-right:1rem;text-align:right;color:#4b5563;content:attr(line);font-size:13px}
     .content blockquote{border-left:3px solid #f97316;padding-left:16px;color:#78716c;margin:16px 0}
     .content ul,.content ol{padding-left:24px;margin-bottom:1.2em}
     .content li{margin-bottom:4px}
