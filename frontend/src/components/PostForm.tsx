@@ -116,6 +116,9 @@ export function PostForm({ initialPost }: Props) {
   const [published, setPublished] = useState(initialPost?.published ?? false);
   const [loading, setLoading] = useState(false);
   const [coverUploading, setCoverUploading] = useState(false);
+  const [bodyUploading, setBodyUploading] = useState(false);
+  const [editorDragging, setEditorDragging] = useState(false);
+  const [coverDragging, setCoverDragging] = useState(false);
   const [error, setError] = useState("");
   const [activeTab, setActiveTab] = useState<TabKey>("split");
 
@@ -143,6 +146,36 @@ export function PostForm({ initialPost }: Props) {
       setError("Ошибка загрузки обложки");
     } finally {
       setCoverUploading(false);
+    }
+  };
+
+  // ── upload image and insert markdown at cursor ──
+  const uploadAndInsert = async (file: File) => {
+    if (!token) return;
+    setBodyUploading(true);
+    try {
+      const form = new FormData();
+      form.append("file", file);
+      const res = await fetch(`${BASE}/api/upload`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+        body: form,
+      });
+      if (!res.ok) throw new Error();
+      const { url } = await res.json();
+      const ta = taRef.current;
+      if (!ta) return;
+      const pos = ta.selectionStart;
+      const snippet = `![](${url})`;
+      setBody((prev) => prev.slice(0, pos) + snippet + prev.slice(pos));
+      setTimeout(() => {
+        ta.focus();
+        ta.setSelectionRange(pos + snippet.length, pos + snippet.length);
+      }, 0);
+    } catch {
+      setError("Ошибка загрузки изображения");
+    } finally {
+      setBodyUploading(false);
     }
   };
 
@@ -542,42 +575,58 @@ export function PostForm({ initialPost }: Props) {
                 </button>
               </div>
             ) : (
-              <label style={{ cursor: "pointer" }}>
-                <div
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    gap: 6,
-                    padding: "24px 16px",
-                    border: "2px dashed var(--border-strong, oklch(0.82 0.015 65))",
-                    borderRadius: 6,
-                    background: "var(--bg-sunken, oklch(0.96 0.014 80))",
-                    fontSize: 12,
-                    color: "var(--fg-mute)",
-                    textAlign: "center",
-                  }}
-                  onClick={() => coverRef.current?.click()}
-                >
-                  {coverUploading ? (
-                    <span>загружаю...</span>
-                  ) : (
-                    <>
-                      <span style={{ fontSize: 24 }}>📎</span>
-                      <span>перетащи файл или клик</span>
-                      <span
-                        style={{
-                          fontSize: 10,
-                          fontFamily: "var(--font-mono)",
-                          color: "var(--fg-faint)",
-                        }}
-                      >
-                        jpg / png / webp
-                      </span>
-                    </>
-                  )}
-                </div>
-              </label>
+              <div
+                onDragOver={(e) => { e.preventDefault(); setCoverDragging(true); }}
+                onDragEnter={(e) => { e.preventDefault(); setCoverDragging(true); }}
+                onDragLeave={() => setCoverDragging(false)}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  setCoverDragging(false);
+                  const file = Array.from(e.dataTransfer.files).find((f) =>
+                    f.type.startsWith("image/")
+                  );
+                  if (file) handleCoverUpload(file);
+                }}
+                onClick={() => coverRef.current?.click()}
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  gap: 6,
+                  padding: "24px 16px",
+                  border: `2px dashed ${coverDragging ? "var(--accent)" : "var(--border-strong, oklch(0.82 0.015 65))"}`,
+                  borderRadius: 6,
+                  background: coverDragging ? "var(--accent-bg)" : "var(--bg-sunken, oklch(0.96 0.014 80))",
+                  fontSize: 12,
+                  color: coverDragging ? "var(--rust)" : "var(--fg-mute)",
+                  textAlign: "center",
+                  cursor: "pointer",
+                  transition: "all 0.1s",
+                }}
+              >
+                {coverUploading ? (
+                  <span>загружаю...</span>
+                ) : coverDragging ? (
+                  <>
+                    <span style={{ fontSize: 24 }}>📎</span>
+                    <span style={{ fontWeight: 600 }}>отпусти чтобы загрузить</span>
+                  </>
+                ) : (
+                  <>
+                    <span style={{ fontSize: 24 }}>📎</span>
+                    <span>перетащи файл или клик</span>
+                    <span
+                      style={{
+                        fontSize: 10,
+                        fontFamily: "var(--font-mono)",
+                        color: "var(--fg-faint)",
+                      }}
+                    >
+                      jpg / png / webp
+                    </span>
+                  </>
+                )}
+              </div>
             )}
           </div>
 
@@ -890,30 +939,83 @@ export function PostForm({ initialPost }: Props) {
           >
             {/* Edit pane */}
             {showEdit && (
-              <textarea
-                ref={taRef}
-                value={body}
-                onChange={(e) => setBody(e.target.value)}
-                spellCheck={false}
-                style={{
-                  width: "100%",
-                  height: "100%",
-                  padding: "24px 32px",
-                  border: "none",
-                  outline: "none",
-                  resize: "none",
-                  background: "var(--bg)",
-                  color: "var(--fg)",
-                  fontFamily: "var(--font-mono)",
-                  fontSize: 14,
-                  lineHeight: 1.7,
-                  borderRight:
-                    activeTab === "split"
-                      ? "1px solid var(--border)"
-                      : undefined,
-                  boxSizing: "border-box",
-                }}
-              />
+              <div style={{ position: "relative", display: "flex", flexDirection: "column" }}>
+                <textarea
+                  ref={taRef}
+                  value={body}
+                  onChange={(e) => setBody(e.target.value)}
+                  spellCheck={false}
+                  onDragOver={(e) => { e.preventDefault(); setEditorDragging(true); }}
+                  onDragEnter={(e) => { e.preventDefault(); setEditorDragging(true); }}
+                  onDragLeave={() => setEditorDragging(false)}
+                  onDrop={async (e) => {
+                    e.preventDefault();
+                    setEditorDragging(false);
+                    const files = Array.from(e.dataTransfer.files).filter((f) =>
+                      f.type.startsWith("image/")
+                    );
+                    for (const file of files) await uploadAndInsert(file);
+                  }}
+                  style={{
+                    flex: 1,
+                    width: "100%",
+                    height: "100%",
+                    padding: "24px 32px",
+                    border: "none",
+                    outline: "none",
+                    resize: "none",
+                    background: editorDragging ? "var(--accent-bg)" : "var(--bg)",
+                    color: "var(--fg)",
+                    fontFamily: "var(--font-mono)",
+                    fontSize: 14,
+                    lineHeight: 1.7,
+                    borderRight:
+                      activeTab === "split"
+                        ? "1px solid var(--border)"
+                        : undefined,
+                    boxSizing: "border-box",
+                    transition: "background 0.1s",
+                  }}
+                />
+                {editorDragging && (
+                  <div style={{
+                    position: "absolute",
+                    inset: 0,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    pointerEvents: "none",
+                    borderRight: activeTab === "split" ? "1px solid var(--border)" : undefined,
+                  }}>
+                    <div style={{
+                      padding: "16px 28px",
+                      background: "var(--accent)",
+                      color: "#fff",
+                      borderRadius: 8,
+                      fontFamily: "var(--font-mono)",
+                      fontSize: 13,
+                      fontWeight: 600,
+                    }}>
+                      📎 отпусти чтобы вставить
+                    </div>
+                  </div>
+                )}
+                {bodyUploading && (
+                  <div style={{
+                    position: "absolute",
+                    inset: 0,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    background: "rgba(0,0,0,0.08)",
+                    pointerEvents: "none",
+                  }}>
+                    <span style={{ fontFamily: "var(--font-mono)", fontSize: 13, color: "var(--accent)" }}>
+                      загружаю...
+                    </span>
+                  </div>
+                )}
+              </div>
             )}
 
             {/* Preview pane */}
