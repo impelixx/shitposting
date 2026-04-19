@@ -135,3 +135,35 @@ func (r *PostRepo) Delete(ctx context.Context, slug string) error {
 	_, err := r.pool.Exec(ctx, `DELETE FROM posts WHERE slug = $1`, slug)
 	return err
 }
+
+func (r *PostRepo) Search(ctx context.Context, q string) ([]*Post, error) {
+	like := "%" + q + "%"
+	rows, err := r.pool.Query(ctx, `
+		SELECT id, title, slug, body, excerpt, tags, cover_image, published, created_at, updated_at
+		FROM posts
+		WHERE published = true AND (
+			title ILIKE $1 OR
+			excerpt ILIKE $1 OR
+			body ILIKE $1 OR
+			EXISTS (SELECT 1 FROM unnest(tags) t WHERE t ILIKE $1)
+		)
+		ORDER BY
+			CASE WHEN title ILIKE $1 THEN 0
+			     WHEN excerpt ILIKE $1 THEN 1
+			     ELSE 2 END,
+			created_at DESC
+		LIMIT 20`, like)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	posts := make([]*Post, 0)
+	for rows.Next() {
+		var p Post
+		if err := rows.Scan(&p.ID, &p.Title, &p.Slug, &p.Body, &p.Excerpt, &p.Tags, &p.CoverImage, &p.Published, &p.CreatedAt, &p.UpdatedAt); err != nil {
+			return nil, err
+		}
+		posts = append(posts, &p)
+	}
+	return posts, rows.Err()
+}

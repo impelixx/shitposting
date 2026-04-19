@@ -46,7 +46,7 @@ func main() {
 	postsH := handler.NewPostsHandler(postRepo, searchClient)
 	commentsH := handler.NewCommentsHandler(postRepo, commentRepo)
 	tagsH := handler.NewTagsHandler(tagRepo)
-	searchH := handler.NewSearchHandler(searchClient)
+	searchH := handler.NewSearchHandler(searchClient, postRepo)
 	uploadH := handler.NewUploadHandler(r2)
 
 	r := chi.NewRouter()

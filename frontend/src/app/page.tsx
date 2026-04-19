@@ -79,9 +79,24 @@ export default async function HomePage() {
         fontSize: 12,
         color: "var(--fg-faint)",
         fontFamily: "var(--font-mono)",
-        textAlign: "center",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: 24,
       }}>
-        impelix blog · go + next.js · md в репе
+        <span>impelix blog · go + next.js · md в репе</span>
+        <a
+          href="/admin"
+          style={{
+            color: "var(--accent)",
+            fontSize: 11,
+            border: "1px solid var(--border)",
+            borderRadius: 4,
+            padding: "3px 10px",
+          }}
+        >
+          ✍ admin
+        </a>
       </footer>
     </>
   );
