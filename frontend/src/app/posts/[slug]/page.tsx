@@ -8,6 +8,9 @@ import { TagPill } from "@/components/TagPill";
 import { PostBody } from "@/components/PostBody";
 import { CommentList } from "@/components/CommentList";
 import { CommentForm } from "@/components/CommentForm";
+import { ShareButton } from "@/components/ShareButton";
+
+const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://impelix.dev";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -20,21 +23,25 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const post = await api.getPost(slug).catch(() => null);
   if (!post) return {};
 
+  const desc = post.excerpt || post.body.slice(0, 160);
+  const readerUrl = `${SITE}/r/${slug}`;
   const images = post.cover_image ? [{ url: post.cover_image, width: 1200, height: 630 }] : [];
 
   return {
     title: post.title,
-    description: post.excerpt || post.body.slice(0, 160),
+    description: desc,
+    alternates: { canonical: readerUrl },
     openGraph: {
       title: post.title,
-      description: post.excerpt || post.body.slice(0, 160),
+      description: desc,
       type: "article",
+      url: readerUrl,
       images,
     },
     twitter: {
       card: post.cover_image ? "summary_large_image" : "summary",
       title: post.title,
-      description: post.excerpt || post.body.slice(0, 160),
+      description: desc,
       images: post.cover_image ? [post.cover_image] : [],
     },
   };
@@ -72,12 +79,7 @@ export default async function ArticlePage({ params }: Props) {
           <Link href="/" style={{ fontSize: "14px", color: "#f97316", textDecoration: "none" }}>
             ← Все статьи
           </Link>
-          <Link
-            href={`/r/${post.slug}`}
-            style={{ fontSize: "12px", color: "#a8a29e", textDecoration: "none", border: "1px solid #e7e5e4", borderRadius: "4px", padding: "4px 10px" }}
-          >
-            режим чтения ↗
-          </Link>
+          <ShareButton slug={post.slug} />
         </div>
 
         <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginBottom: "16px" }}>
