@@ -1,5 +1,5 @@
 "use client";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { api } from "@/lib/api";
@@ -71,6 +71,29 @@ export function PostForm({ initialPost }: Props) {
       setCoverUploading(false);
     }
   };
+
+  const handleCoverUploadRef = useRef(handleCoverUpload);
+  useEffect(() => { handleCoverUploadRef.current = handleCoverUpload; });
+
+  useEffect(() => {
+    if (!token) return;
+    const handlePaste = async (e: ClipboardEvent) => {
+      const target = e.target as HTMLElement;
+      if (target.closest(".w-md-editor")) return;
+
+      const items = Array.from(e.clipboardData?.items ?? []);
+      const imageItem = items.find((it) => it.type.startsWith("image/"));
+      if (!imageItem) return;
+
+      e.preventDefault();
+      const file = imageItem.getAsFile();
+      if (!file) return;
+
+      await handleCoverUploadRef.current(file);
+    };
+    document.addEventListener("paste", handlePaste);
+    return () => document.removeEventListener("paste", handlePaste);
+  }, [token]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

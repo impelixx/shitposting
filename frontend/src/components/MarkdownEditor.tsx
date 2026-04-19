@@ -1,5 +1,5 @@
 "use client";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 
 const MDEditor = dynamic(() => import("@uiw/react-md-editor"), { ssr: false });
@@ -17,6 +17,64 @@ interface Props {
 export function MarkdownEditor({ value, onChange, token, height = 560 }: Props) {
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState("");
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const valueRef = useRef(value);
+  const onChangeRef = useRef(onChange);
+  useEffect(() => { valueRef.current = value; }, [value]);
+  useEffect(() => { onChangeRef.current = onChange; }, [onChange]);
+
+  useEffect(() => {
+    if (!token) return;
+    const wrapper = wrapperRef.current;
+    if (!wrapper) return;
+
+    const handlePaste = async (e: ClipboardEvent) => {
+      const items = Array.from(e.clipboardData?.items ?? []);
+      const imageItem = items.find((it) => it.type.startsWith("image/"));
+      if (!imageItem) return;
+
+      e.preventDefault();
+      const file = imageItem.getAsFile();
+      if (!file) return;
+
+      setUploading(true);
+      try {
+        const form = new FormData();
+        form.append("file", file);
+        const res = await fetch(`${BASE}/api/upload`, {
+          method: "POST",
+          headers: { Authorization: `Bearer ${token}` },
+          body: form,
+        });
+        if (res.ok) {
+          const { url } = await res.json();
+          const md = `![image](${url})`;
+          const textarea = wrapper.querySelector("textarea");
+          const cur = valueRef.current;
+          if (textarea) {
+            const start = textarea.selectionStart ?? cur.length;
+            const end = textarea.selectionEnd ?? cur.length;
+            const next = cur.slice(0, start) + md + cur.slice(end);
+            onChangeRef.current(next);
+            setTimeout(() => {
+              textarea.selectionStart = textarea.selectionEnd = start + md.length;
+              textarea.focus();
+            }, 0);
+          } else {
+            onChangeRef.current(cur + "\n" + md + "\n");
+          }
+        } else {
+          setUploadError("Ошибка загрузки");
+          setTimeout(() => setUploadError(""), 3000);
+        }
+      } finally {
+        setUploading(false);
+      }
+    };
+
+    wrapper.addEventListener("paste", handlePaste);
+    return () => wrapper.removeEventListener("paste", handlePaste);
+  }, [token]);
 
   const extraCommands = useMemo(() => {
     if (!token) return [];
@@ -61,7 +119,7 @@ export function MarkdownEditor({ value, onChange, token, height = 560 }: Props) 
   }, [token]);
 
   return (
-    <div style={{ fontFamily: MONO, border: "1px solid #e7e5e4", borderRadius: "8px", overflow: "hidden", position: "relative" }}>
+    <div ref={wrapperRef} style={{ fontFamily: MONO, border: "1px solid #e7e5e4", borderRadius: "8px", overflow: "hidden", position: "relative" }}>
       <style>{`
         .w-md-editor { border: none !important; border-radius: 0 !important; box-shadow: none !important; font-family: ${MONO} !important; }
         .w-md-editor-toolbar { background: #1c1917 !important; border-bottom: 1px solid #44403c !important; border-radius: 0 !important; padding: 6px 10px !important; }
