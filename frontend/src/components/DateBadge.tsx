@@ -7,9 +7,19 @@ export function DateBadge({ dateStr }: Props) {
   const day = d.getDate().toString().padStart(2, "0");
   const month = d.toLocaleString("ru-RU", { month: "short" });
   return (
-    <div className="flex flex-col items-center bg-orange-500 rounded-lg px-2.5 py-1.5 min-w-[42px] flex-shrink-0">
-      <span className="text-lg font-black text-white leading-none">{day}</span>
-      <span className="text-[9px] text-orange-100 uppercase mt-0.5">{month}</span>
+    <div style={{
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      backgroundColor: "#f97316",
+      borderRadius: "7px",
+      padding: "6px 10px",
+      minWidth: "42px",
+      flexShrink: 0,
+      textAlign: "center",
+    }}>
+      <span style={{ fontSize: "18px", fontWeight: 900, color: "#fff", lineHeight: 1 }}>{day}</span>
+      <span style={{ fontSize: "9px", color: "#ffedd5", textTransform: "uppercase", marginTop: "2px" }}>{month}</span>
     </div>
   );
 }

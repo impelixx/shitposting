@@ -10,18 +10,25 @@ export default async function HomePage() {
 
   return (
     <>
-      <div className="bg-stone-950 px-7 pb-3">
-        <div className="max-w-5xl mx-auto">
+      <div style={{ backgroundColor: "#1c1917", padding: "0 28px 12px" }}>
+        <div style={{ maxWidth: "1024px", margin: "0 auto" }}>
           <SearchBar />
         </div>
       </div>
-      <div className="max-w-5xl mx-auto flex min-h-screen">
-        <main className="flex-1 px-7 py-6 border-r border-stone-200">
-          <h2 className="text-[11px] font-bold text-stone-400 uppercase tracking-widest mb-5">
+      <div style={{ maxWidth: "1024px", margin: "0 auto", display: "flex", minHeight: "100vh" }}>
+        <main style={{ flex: 1, padding: "24px 28px", borderRight: "1px solid #e7e5e4" }}>
+          <h2 style={{
+            fontSize: "11px",
+            fontWeight: 700,
+            color: "#78716c",
+            textTransform: "uppercase",
+            letterSpacing: "1.5px",
+            marginBottom: "20px",
+          }}>
             Последние статьи
           </h2>
           {posts.length === 0 && (
-            <p className="text-stone-400 text-sm">Статей пока нет.</p>
+            <p style={{ color: "#a8a29e", fontSize: "14px" }}>Статей пока нет.</p>
           )}
           {posts.map((post) => (
             <PostCard key={post.id} post={post} />

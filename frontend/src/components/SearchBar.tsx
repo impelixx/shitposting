@@ -23,27 +23,63 @@ export function SearchBar() {
   }, []);
 
   return (
-    <div className="relative mt-2.5">
-      <div className="bg-stone-900 rounded-md px-3 py-2 flex items-center gap-2">
-        <span className="text-stone-600 text-sm">🔍</span>
+    <div style={{ position: "relative", marginTop: "10px" }}>
+      <div style={{
+        backgroundColor: "#0c0a09",
+        borderRadius: "6px",
+        padding: "7px 12px",
+        display: "flex",
+        alignItems: "center",
+        gap: "8px",
+      }}>
+        <span style={{ color: "#52525b", fontSize: "13px" }}>🔍</span>
         <input
           value={query}
           onChange={handleChange}
           onBlur={() => setTimeout(() => setOpen(false), 150)}
           placeholder="Поиск по статьям..."
-          className="bg-transparent text-sm text-stone-400 placeholder-stone-600 outline-none w-56"
+          style={{
+            background: "transparent",
+            border: "none",
+            outline: "none",
+            fontSize: "13px",
+            color: "#a1a1aa",
+            width: "220px",
+          }}
         />
       </div>
       {open && results.length > 0 && (
-        <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-stone-200 rounded-md shadow-lg z-50 max-h-64 overflow-y-auto">
+        <div style={{
+          position: "absolute",
+          top: "100%",
+          left: 0,
+          right: 0,
+          marginTop: "4px",
+          backgroundColor: "#fff",
+          border: "1px solid #e7e5e4",
+          borderRadius: "6px",
+          boxShadow: "0 4px 16px rgba(0,0,0,0.12)",
+          zIndex: 50,
+          maxHeight: "256px",
+          overflowY: "auto",
+        }}>
           {results.map((r) => (
             <Link
               key={r.id}
               href={`/posts/${r.slug}`}
-              className="block px-3 py-2 hover:bg-orange-50 border-b border-stone-100 last:border-0"
+              style={{
+                display: "block",
+                padding: "8px 12px",
+                borderBottom: "1px solid #f5f5f4",
+                textDecoration: "none",
+              }}
             >
-              <div className="text-sm font-medium text-stone-800">{r.title}</div>
-              {r.excerpt && <div className="text-xs text-stone-400 mt-0.5 truncate">{r.excerpt}</div>}
+              <div style={{ fontSize: "14px", fontWeight: 500, color: "#1c1917" }}>{r.title}</div>
+              {r.excerpt && (
+                <div style={{ fontSize: "12px", color: "#a8a29e", marginTop: "2px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                  {r.excerpt}
+                </div>
+              )}
             </Link>
           ))}
         </div>

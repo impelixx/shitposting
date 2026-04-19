@@ -4,9 +4,24 @@ import { TagPill } from "./TagPill";
 export async function Sidebar() {
   const tags = await api.listTags().catch(() => []);
   return (
-    <aside className="w-52 flex-shrink-0 bg-stone-100 p-5 border-l border-stone-200">
-      <h3 className="text-[11px] font-bold text-stone-800 uppercase tracking-widest mb-3">Теги</h3>
-      <div className="flex flex-wrap gap-1.5">
+    <aside style={{
+      width: "220px",
+      flexShrink: 0,
+      backgroundColor: "#f5f5f4",
+      padding: "24px 18px",
+      borderLeft: "1px solid #e7e5e4",
+    }}>
+      <h3 style={{
+        fontSize: "11px",
+        fontWeight: 700,
+        color: "#1c1917",
+        textTransform: "uppercase",
+        letterSpacing: "1.5px",
+        marginBottom: "12px",
+      }}>
+        Теги
+      </h3>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
         {tags.map((t) => (
           <TagPill key={t.slug} tag={t.slug} href={`/tags/${t.slug}`} />
         ))}

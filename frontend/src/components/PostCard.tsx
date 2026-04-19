@@ -14,20 +14,35 @@ function readingTime(body: string) {
 
 export function PostCard({ post, commentCount = 0 }: Props) {
   return (
-    <article className="pb-5 mb-5 border-b border-stone-100 last:border-0 last:mb-0 last:pb-0">
-      <div className="flex gap-1.5 mb-2 flex-wrap">
+    <article style={{ paddingBottom: "20px", marginBottom: "20px", borderBottom: "1px solid #f5f5f4" }}>
+      <div style={{ display: "flex", gap: "6px", flexWrap: "wrap", marginBottom: "8px" }}>
         {post.tags.map((t) => (
           <TagPill key={t} tag={t} href={`/tags/${t}`} />
         ))}
       </div>
-      <div className="flex gap-3.5 items-start">
+      <div style={{ display: "flex", gap: "14px", alignItems: "flex-start" }}>
         <DateBadge dateStr={post.created_at} />
         <div>
-          <Link href={`/posts/${post.slug}`} className="font-serif text-[17px] font-bold text-stone-900 leading-snug hover:text-orange-600 transition-colors">
+          <Link
+            href={`/posts/${post.slug}`}
+            style={{
+              fontFamily: "Georgia, serif",
+              fontSize: "17px",
+              fontWeight: 700,
+              color: "#1c1917",
+              lineHeight: 1.35,
+              textDecoration: "none",
+              display: "block",
+              marginBottom: "5px",
+            }}
+            className="hover:text-orange-600 transition-colors"
+          >
             {post.title}
           </Link>
-          <p className="text-sm text-stone-500 mt-1.5 leading-relaxed">{post.excerpt}</p>
-          <div className="flex gap-3 mt-2 text-xs text-stone-400">
+          <p style={{ fontFamily: "Georgia, serif", fontSize: "13px", color: "#57534e", lineHeight: 1.6 }}>
+            {post.excerpt}
+          </p>
+          <div style={{ display: "flex", gap: "12px", marginTop: "6px", fontSize: "11px", color: "#a8a29e" }}>
             <span>{readingTime(post.body)} мин чтения</span>
             <span>💬 {commentCount}</span>
           </div>
