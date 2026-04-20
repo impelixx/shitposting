@@ -270,7 +270,6 @@ export function PostForm({ initialPost }: Props) {
         await api.createPost(token, data);
       }
       setPublished(publishedValue);
-      try { localStorage.removeItem(draftKey); } catch {}
       router.push("/admin");
     } catch {
       setError("Ошибка при сохранении");
@@ -439,6 +438,22 @@ export function PostForm({ initialPost }: Props) {
           >
             ● {published ? "опубликовано" : "черновик"}
           </span>
+
+          {saveStatus === "saving" && (
+            <span style={{ fontSize: 11, color: "var(--fg-faint)", fontFamily: "var(--font-mono)" }}>
+              сохраняю...
+            </span>
+          )}
+          {saveStatus === "saved" && (
+            <span style={{ fontSize: 11, color: "oklch(0.6 0.14 145)", fontFamily: "var(--font-mono)" }}>
+              ✓ сохранено
+            </span>
+          )}
+          {saveStatus === "error" && (
+            <span style={{ fontSize: 11, color: "#f87171", fontFamily: "var(--font-mono)" }}>
+              ошибка автосохранения
+            </span>
+          )}
 
           {error && (
             <span style={{ color: "#f87171", fontSize: 12 }}>{error}</span>
