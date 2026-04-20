@@ -344,19 +344,11 @@ export function ArticleView({ post, comments, nextPost, relatedPosts }: Props) {
       )}
 
       {/* 3-column grid */}
-      <div
-        style={{
-          maxWidth: 1200,
-          margin: "0 auto",
-          padding: "40px 24px",
-          display: "grid",
-          gridTemplateColumns: "220px 1fr 220px",
-          gap: 40,
-          alignItems: "start",
-        }}
-      >
+      <div className="article-layout">
         {/* Left: TOC */}
-        <TocSidebar toc={toc} activeId={activeId} />
+        <div className="article-toc">
+          <TocSidebar toc={toc} activeId={activeId} />
+        </div>
 
         {/* Center: Article */}
         <main>
@@ -374,9 +366,9 @@ export function ArticleView({ post, comments, nextPost, relatedPosts }: Props) {
 
           {/* Heading */}
           <h1
+            className="article-h1"
             style={{
               fontFamily: "var(--font-serif)",
-              fontSize: 42,
               fontWeight: 600,
               letterSpacing: "-0.025em",
               lineHeight: 1.12,
@@ -512,7 +504,9 @@ export function ArticleView({ post, comments, nextPost, relatedPosts }: Props) {
         </main>
 
         {/* Right: Rail */}
-        <RightRail nextPost={nextPost} relatedPosts={relatedPosts} firstTag={firstTag} />
+        <div className="article-right-rail">
+          <RightRail nextPost={nextPost} relatedPosts={relatedPosts} firstTag={firstTag} />
+        </div>
       </div>
     </>
   );

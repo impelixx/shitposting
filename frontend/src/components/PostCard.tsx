@@ -24,23 +24,26 @@ export function PostCard({ post, commentCount = 0, featured = false }: Props) {
           <img
             src={post.cover_image}
             alt={post.title}
+            className={featured ? "cover-featured" : "cover-regular"}
             style={{ width: "100%", height: coverHeight, objectFit: "cover", display: "block" }}
           />
         </Link>
       ) : (
         <Link href={href} style={{ display: "block", borderRadius: 8, overflow: "hidden", lineHeight: 0, marginBottom: featured ? 20 : 0 }}>
-          <div style={{
-            width: "100%",
-            height: coverHeight,
-            background: "repeating-linear-gradient(135deg, oklch(0.92 0.04 65) 0 6px, oklch(0.94 0.03 65) 6px 12px)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            fontFamily: "var(--font-mono)",
-            fontSize: 11,
-            color: "var(--fg-faint)",
-            letterSpacing: "0.05em",
-          }}>
+          <div
+            className={featured ? "cover-featured" : "cover-regular"}
+            style={{
+              width: "100%",
+              height: coverHeight,
+              background: "repeating-linear-gradient(135deg, oklch(0.92 0.04 65) 0 6px, oklch(0.94 0.03 65) 6px 12px)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontFamily: "var(--font-mono)",
+              fontSize: 11,
+              color: "var(--fg-faint)",
+              letterSpacing: "0.05em",
+            }}>
             cover · 16:9
           </div>
         </Link>

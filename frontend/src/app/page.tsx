@@ -17,7 +17,7 @@ export default async function HomePage() {
         <SearchBar />
       </Navbar>
 
-      <div style={{ maxWidth: 1200, margin: "0 auto", padding: "32px 32px 64px", display: "grid", gridTemplateColumns: "1fr 280px", gap: 48 }}>
+      <div className="home-layout">
         <main>
           {featured && (
             <section style={{ marginBottom: 56 }}>
@@ -39,23 +39,17 @@ export default async function HomePage() {
           {grid.length > 0 && (
             <section>
               <div style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "baseline",
+                fontSize: 10,
+                textTransform: "uppercase",
+                letterSpacing: "0.12em",
+                color: "var(--fg-faint)",
+                fontWeight: 600,
+                fontFamily: "var(--font-sans)",
                 marginBottom: 16,
               }}>
-                <div style={{
-                  fontSize: 10,
-                  textTransform: "uppercase",
-                  letterSpacing: "0.12em",
-                  color: "var(--fg-faint)",
-                  fontWeight: 600,
-                  fontFamily: "var(--font-sans)",
-                }}>
-                  последние статьи
-                </div>
+                последние статьи
               </div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "40px 28px" }}>
+              <div className="posts-grid">
                 {grid.map((post) => (
                   <PostCard key={post.id} post={post} />
                 ))}
@@ -70,7 +64,9 @@ export default async function HomePage() {
           )}
         </main>
 
-        <Sidebar />
+        <div className="home-sidebar">
+          <Sidebar />
+        </div>
       </div>
 
       <footer style={{
@@ -82,7 +78,6 @@ export default async function HomePage() {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        gap: 24,
       }}>
         <span>impelix blog · go + next.js · md в репе</span>
       </footer>
