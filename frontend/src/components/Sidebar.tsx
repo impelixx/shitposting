@@ -147,8 +147,10 @@ function Heatmap({ postsPerDay }: { postsPerDay: { day: string; count: number }[
 export async function Sidebar() {
   const [tags, stats] = await Promise.all([
     api.listTags().catch(() => []),
-    api.getStats().catch(() => ({ total_posts: 0, total_views: 0, total_comments: 0, posts_per_day: [] })),
+    api.getStats().catch(() => ({ total_posts: 0, total_views: 0, total_comments: 0, posts_per_day: [] as { day: string; count: number }[] })),
   ]);
+  // Guard against null from Go nil-slice marshaling
+  const postsPerDay = stats.posts_per_day ?? [];
 
   return (
     <aside style={{ width: 280, flexShrink: 0, display: "flex", flexDirection: "column", gap: 32, paddingTop: 4 }}>
@@ -157,7 +159,7 @@ export async function Sidebar() {
         totalViews={stats.total_views}
         totalComments={stats.total_comments}
       />
-      <Heatmap postsPerDay={stats.posts_per_day} />
+      <Heatmap postsPerDay={postsPerDay} />
 
       <div>
         <SectionLabel>теги</SectionLabel>

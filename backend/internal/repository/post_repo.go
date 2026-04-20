@@ -159,7 +159,7 @@ type DayCount struct {
 }
 
 func (r *PostRepo) GetStats(ctx context.Context) (*Stats, error) {
-	var s Stats
+	s := &Stats{PostsPerDay: []DayCount{}} // never nil → always marshals as []
 	err := r.pool.QueryRow(ctx, `
 		SELECT
 			COUNT(*) FILTER (WHERE published = true),
@@ -186,7 +186,7 @@ func (r *PostRepo) GetStats(ctx context.Context) (*Stats, error) {
 			}
 		}
 	}
-	return &s, nil
+	return s, nil
 }
 
 func (r *PostRepo) Search(ctx context.Context, q string) ([]*Post, error) {
