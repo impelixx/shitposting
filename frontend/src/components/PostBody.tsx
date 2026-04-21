@@ -67,6 +67,9 @@ export function PostBody({ body }: { body: string }) {
           font-family: var(--font-sans) !important;
           font-size: 17px !important;
           line-height: 1.85 !important;
+          overflow-wrap: break-word !important;
+          word-break: break-word !important;
+          min-width: 0 !important;
         }
         .post-body .wmde-markdown h1,
         .post-body .wmde-markdown h2,
@@ -131,7 +134,7 @@ export function PostBody({ body }: { body: string }) {
         }
         .post-body .wmde-markdown ul,
         .post-body .wmde-markdown ol { padding-left: 24px !important; margin-bottom: 1.2em !important; }
-        .post-body .wmde-markdown table { border-collapse: collapse !important; width: 100% !important; }
+        .post-body .wmde-markdown table { border-collapse: collapse !important; width: 100% !important; display: block !important; overflow-x: auto !important; }
         .post-body .wmde-markdown th,
         .post-body .wmde-markdown td { border: 1px solid var(--border) !important; padding: 8px 12px !important; }
         .post-body .wmde-markdown th { background: var(--bg-sunken, oklch(0.96 0.014 80)) !important; font-weight: 600 !important; }

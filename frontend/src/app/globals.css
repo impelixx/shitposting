@@ -91,6 +91,7 @@
   gap: 40px;
   align-items: start;
 }
+.article-layout > * { min-width: 0; }
 .article-toc {}
 .article-right-rail {}
 .article-h1 { font-size: 42px; }
