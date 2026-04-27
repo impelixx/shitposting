@@ -69,18 +69,6 @@ export default async function HomePage() {
         </div>
       </div>
 
-      <footer style={{
-        borderTop: "1px solid var(--border)",
-        padding: "24px 32px",
-        fontSize: 12,
-        color: "var(--fg-faint)",
-        fontFamily: "var(--font-mono)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-      }}>
-        <span>impelix blog · go + next.js · md в репе</span>
-      </footer>
     </>
   );
 }

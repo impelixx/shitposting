@@ -324,25 +324,6 @@ export function ArticleView({ post, comments, nextPost, relatedPosts }: Props) {
         />
       </div>
 
-      {/* Cover image */}
-      {post.cover_image && (
-        <div style={{ width: "100%", height: 340, overflow: "hidden", position: "relative" }}>
-          <img
-            src={post.cover_image}
-            alt={post.title}
-            style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
-          />
-          <div
-            style={{
-              position: "absolute",
-              inset: 0,
-              background:
-                "linear-gradient(to bottom, transparent 40%, oklch(0.985 0.008 80 / 0.95) 100%)",
-            }}
-          />
-        </div>
-      )}
-
       {/* 3-column grid */}
       <div className="article-layout">
         {/* Left: TOC */}
@@ -352,18 +333,6 @@ export function ArticleView({ post, comments, nextPost, relatedPosts }: Props) {
 
         {/* Center: Article */}
         <main>
-          {/* Tags */}
-          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 16 }}>
-            {post.tags.map((t, i) => (
-              <TagPill
-                key={t}
-                tag={t}
-                href={`/tags/${t}`}
-                variant={i % 2 === 1 ? "amber" : "orange"}
-              />
-            ))}
-          </div>
-
           {/* Heading */}
           <h1
             className="article-h1"
@@ -379,6 +348,34 @@ export function ArticleView({ post, comments, nextPost, relatedPosts }: Props) {
           >
             {post.title}
           </h1>
+
+          {/* Tags */}
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 24 }}>
+            {post.tags.map((t, i) => (
+              <TagPill
+                key={t}
+                tag={t}
+                href={`/tags/${t}`}
+                variant={i % 2 === 1 ? "amber" : "orange"}
+              />
+            ))}
+          </div>
+
+          {/* Cover image inline */}
+          {post.cover_image && (
+            <div style={{ marginBottom: 32 }}>
+              <img
+                src={post.cover_image}
+                alt={post.title}
+                style={{
+                  width: "100%",
+                  borderRadius: 12,
+                  display: "block",
+                  objectFit: "cover",
+                }}
+              />
+            </div>
+          )}
 
           {/* Meta */}
           <div

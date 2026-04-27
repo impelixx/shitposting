@@ -109,6 +109,7 @@ func main() {
 	r.Group(func(r chi.Router) {
 		r.Use(middleware.RequireAuth(cfg.JWTSecret))
 		r.Get("/api/admin/posts", postsH.ListAll)
+		r.Get("/api/admin/posts/{slug}", postsH.GetAdmin)
 		r.Post("/api/posts", postsH.Create)
 		r.Put("/api/posts/{slug}", postsH.Update)
 		r.Delete("/api/posts/{slug}", postsH.Delete)

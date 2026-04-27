@@ -1,5 +1,6 @@
 "use client";
 import MDPreview from "@uiw/react-markdown-preview";
+import rehypeRaw from "rehype-raw";
 import React from "react";
 
 const CODE_BG = "oklch(0.24 0.028 55)";
@@ -151,6 +152,7 @@ export function PostBody({ body }: { body: string }) {
         <MDPreview
           source={body}
           style={{ backgroundColor: "transparent" }}
+          rehypePlugins={[[rehypeRaw]]}
           components={{ pre: CodePre as React.FC<React.HTMLAttributes<HTMLPreElement>> }}
         />
       </div>

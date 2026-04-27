@@ -58,6 +58,17 @@ func (h *PostsHandler) Get(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(post)
 }
 
+func (h *PostsHandler) GetAdmin(w http.ResponseWriter, r *http.Request) {
+	slug := chi.URLParam(r, "slug")
+	post, err := h.repo.GetBySlugAdmin(r.Context(), slug)
+	if err != nil {
+		http.Error(w, "not found", http.StatusNotFound)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(post)
+}
+
 func (h *PostsHandler) Create(w http.ResponseWriter, r *http.Request) {
 	var in repository.CreatePostInput
 	if err := json.NewDecoder(r.Body).Decode(&in); err != nil {

@@ -64,6 +64,18 @@ func (r *PostRepo) GetBySlug(ctx context.Context, slug string) (*Post, error) {
 	var p Post
 	err := r.pool.QueryRow(ctx, `
 		SELECT id, title, slug, body, excerpt, tags, cover_image, published, views, created_at, updated_at
+		FROM posts WHERE slug = $1 AND published = true`, slug,
+	).Scan(&p.ID, &p.Title, &p.Slug, &p.Body, &p.Excerpt, &p.Tags, &p.CoverImage, &p.Published, &p.Views, &p.CreatedAt, &p.UpdatedAt)
+	if err != nil {
+		return nil, err
+	}
+	return &p, nil
+}
+
+func (r *PostRepo) GetBySlugAdmin(ctx context.Context, slug string) (*Post, error) {
+	var p Post
+	err := r.pool.QueryRow(ctx, `
+		SELECT id, title, slug, body, excerpt, tags, cover_image, published, views, created_at, updated_at
 		FROM posts WHERE slug = $1`, slug,
 	).Scan(&p.ID, &p.Title, &p.Slug, &p.Body, &p.Excerpt, &p.Tags, &p.CoverImage, &p.Published, &p.Views, &p.CreatedAt, &p.UpdatedAt)
 	if err != nil {

@@ -18,19 +18,23 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!post) return {};
 
   const desc = post.excerpt || post.body.slice(0, 160);
-  const readerUrl = `${SITE}/r/${slug}`;
+  const postUrl = `${SITE}/posts/${slug}`;
   const images = post.cover_image ? [{ url: post.cover_image, width: 1200, height: 630 }] : [];
 
   return {
     title: post.title,
     description: desc,
-    alternates: { canonical: readerUrl },
+    alternates: { canonical: postUrl },
     openGraph: {
       title: post.title,
       description: desc,
       type: "article",
-      url: readerUrl,
+      url: postUrl,
       images,
+      publishedTime: post.created_at,
+      modifiedTime: post.updated_at,
+      authors: ["impelix"],
+      tags: post.tags,
     },
     twitter: {
       card: post.cover_image ? "summary_large_image" : "summary",
@@ -70,8 +74,26 @@ export default async function ArticlePage({ params }: Props) {
     relatedPosts = taggedPosts.filter((p) => p.slug !== slug).slice(0, 3);
   }
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: post.title,
+    description: post.excerpt || post.body.slice(0, 160),
+    datePublished: post.created_at,
+    dateModified: post.updated_at,
+    author: { "@type": "Person", name: "impelix", url: SITE },
+    publisher: { "@type": "Person", name: "impelix", url: SITE },
+    url: `${SITE}/posts/${slug}`,
+    ...(post.cover_image ? { image: post.cover_image } : {}),
+    ...(post.tags.length > 0 ? { keywords: post.tags.join(", ") } : {}),
+  };
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <Navbar />
       <ArticleView
         post={post}

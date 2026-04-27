@@ -20,36 +20,20 @@ export function NavbarAuth() {
 
   if (loggedIn) {
     return (
-      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-        <Link
-          href="/admin"
-          style={{
-            fontSize: 12,
-            color: "var(--accent)",
-            fontFamily: "var(--font-mono)",
-            textDecoration: "none",
-            border: "1px solid var(--accent)",
-            borderRadius: 4,
-            padding: "4px 10px",
-          }}
-        >
-          ✍ admin
-        </Link>
-        <button
-          onClick={handleLogout}
-          style={{
-            fontSize: 12,
-            color: "var(--fg-dark-mute)",
-            fontFamily: "var(--font-mono)",
-            background: "transparent",
-            border: "none",
-            cursor: "pointer",
-            padding: "4px 0",
-          }}
-        >
-          выйти
-        </button>
-      </div>
+      <button
+        onClick={handleLogout}
+        style={{
+          fontSize: 12,
+          color: "var(--fg-dark-mute)",
+          fontFamily: "var(--font-mono)",
+          background: "transparent",
+          border: "none",
+          cursor: "pointer",
+          padding: "4px 0",
+        }}
+      >
+        выйти
+      </button>
     );
   }
 

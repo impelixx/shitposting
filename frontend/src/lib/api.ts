@@ -42,6 +42,9 @@ export const api = {
   listAllPosts: (token: string) =>
     apiFetch<Post[]>("/api/admin/posts", { headers: { Authorization: `Bearer ${token}` } }),
 
+  getAdminPost: (token: string, slug: string) =>
+    apiFetch<Post>(`/api/admin/posts/${slug}`, { headers: { Authorization: `Bearer ${token}` } }),
+
   createPost: (token: string, data: Omit<Post, "id" | "created_at" | "updated_at" | "views">) =>
     apiFetch<Post>("/api/posts", {
       method: "POST",
