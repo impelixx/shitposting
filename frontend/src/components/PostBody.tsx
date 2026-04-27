@@ -1,6 +1,6 @@
 "use client";
 import MDPreview from "@uiw/react-markdown-preview";
-import React from "react";
+import React, { useEffect, useRef } from "react";
 
 const CODE_BG = "oklch(0.24 0.028 55)";
 const CODE_BORDER = "1px solid oklch(0.32 0.03 55)";
@@ -58,6 +58,39 @@ function CodePre({ children, className, style, ...props }: React.HTMLAttributes<
 }
 
 export function PostBody({ body }: { body: string }) {
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    // Refresh canvases so stale Chart.js instances don't block re-init
+    container.querySelectorAll("canvas").forEach((canvas) => {
+      canvas.parentNode?.replaceChild(canvas.cloneNode(true), canvas);
+    });
+
+    // Re-execute scripts in DOM order, waiting for external src scripts to load
+    const scripts = Array.from(container.querySelectorAll("script"));
+    let chain = Promise.resolve();
+    scripts.forEach((old) => {
+      chain = chain.then(
+        () =>
+          new Promise<void>((resolve) => {
+            const s = document.createElement("script");
+            Array.from(old.attributes).forEach((a) => s.setAttribute(a.name, a.value));
+            if (old.textContent) s.textContent = old.textContent;
+            const hasSrc = old.hasAttribute("src");
+            if (hasSrc) {
+              s.addEventListener("load", () => resolve());
+              s.addEventListener("error", () => resolve());
+            }
+            old.parentNode?.replaceChild(s, old);
+            if (!hasSrc) resolve();
+          })
+      );
+    });
+  }, [body]);
+
   return (
     <>
       <style>{`
@@ -147,7 +180,7 @@ export function PostBody({ body }: { body: string }) {
         }
         .post-body .wmde-markdown hr { border-top: 1px solid var(--border) !important; border-bottom: none !important; }
       `}</style>
-      <div className="post-body" data-color-mode="light">
+      <div className="post-body" data-color-mode="light" ref={containerRef}>
         <MDPreview
           source={body}
           style={{ backgroundColor: "transparent" }}
