@@ -9,6 +9,7 @@ import { PostBody } from "@/components/PostBody";
 import { CommentForm } from "@/components/CommentForm";
 import { CommentList } from "@/components/CommentList";
 import { api } from "@/lib/api";
+import { auth } from "@/lib/auth";
 
 // ─── TOC helpers ─────────────────────────────────────────────────────────────
 
@@ -242,6 +243,50 @@ export function ArticleView({ post, comments, nextPost, relatedPosts }: Props) {
   const [views, setViews] = useState(post.views);
   const articleRef = useRef<HTMLDivElement>(null);
 
+  // ── inline editing ──
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [editTitle, setEditTitle] = useState(post.title);
+  const [editTags, setEditTags] = useState<string[]>(post.tags);
+  const [tagInput, setTagInput] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [saveMsg, setSaveMsg] = useState("");
+
+  const hasChanges = editTitle !== post.title ||
+    JSON.stringify(editTags) !== JSON.stringify(post.tags);
+
+  useEffect(() => { setIsAdmin(auth.isLoggedIn()); }, []);
+
+  const saveChanges = async () => {
+    const token = auth.getToken();
+    if (!token) return;
+    setSaving(true);
+    try {
+      await api.updatePost(token, post.slug, {
+        title: editTitle,
+        slug: post.slug,
+        body: post.body,
+        excerpt: post.excerpt,
+        tags: editTags,
+        cover_image: post.cover_image,
+        published: post.published,
+      });
+      setSaveMsg("✓ сохранено");
+      setTimeout(() => setSaveMsg(""), 2000);
+    } catch {
+      setSaveMsg("ошибка");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const addTag = (raw: string) => {
+    const tag = raw.trim().replace(/^#/, "");
+    if (tag && !editTags.includes(tag)) setEditTags((p) => [...p, tag]);
+    setTagInput("");
+  };
+
+  const removeTag = (tag: string) => setEditTags((p) => p.filter((t) => t !== tag));
+
   useEffect(() => {
     api.trackView(post.slug).then((r) => setViews(r.views)).catch(() => {});
   }, [post.slug]);
@@ -333,32 +378,144 @@ export function ArticleView({ post, comments, nextPost, relatedPosts }: Props) {
 
         {/* Center: Article */}
         <main>
+          {/* Save bar (admin only) */}
+          {isAdmin && (hasChanges || saveMsg) && (
+            <div style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 12,
+              marginBottom: 20,
+              padding: "10px 14px",
+              background: "var(--accent-bg)",
+              border: "1px solid var(--accent)",
+              borderRadius: 8,
+              fontSize: 12,
+              fontFamily: "var(--font-mono)",
+            }}>
+              {saveMsg ? (
+                <span style={{ color: "var(--rust)" }}>{saveMsg}</span>
+              ) : (
+                <>
+                  <span style={{ color: "var(--fg-mute)", flex: 1 }}>есть несохранённые изменения</span>
+                  <button
+                    onClick={() => { setEditTitle(post.title); setEditTags(post.tags); }}
+                    style={{ background: "none", border: "none", color: "var(--fg-mute)", cursor: "pointer", fontSize: 12, fontFamily: "var(--font-mono)" }}
+                  >
+                    отменить
+                  </button>
+                  <button
+                    onClick={saveChanges}
+                    disabled={saving}
+                    style={{
+                      background: "var(--accent)",
+                      color: "#fff",
+                      border: "none",
+                      borderRadius: 5,
+                      padding: "5px 14px",
+                      cursor: saving ? "not-allowed" : "pointer",
+                      fontSize: 12,
+                      fontFamily: "var(--font-mono)",
+                      fontWeight: 600,
+                    }}
+                  >
+                    {saving ? "сохраняю..." : "Сохранить"}
+                  </button>
+                </>
+              )}
+            </div>
+          )}
+
           {/* Heading */}
-          <h1
-            className="article-h1"
-            style={{
-              fontFamily: "var(--font-serif)",
-              fontWeight: 600,
-              letterSpacing: "-0.025em",
-              lineHeight: 1.12,
-              margin: "0 0 16px",
-              textWrap: "balance",
-              color: "var(--fg)",
-            } as React.CSSProperties}
-          >
-            {post.title}
-          </h1>
+          {isAdmin ? (
+            <input
+              value={editTitle}
+              onChange={(e) => setEditTitle(e.target.value)}
+              className="article-h1"
+              style={{
+                fontFamily: "var(--font-serif)",
+                fontWeight: 600,
+                letterSpacing: "-0.025em",
+                lineHeight: 1.12,
+                margin: "0 0 16px",
+                color: "var(--fg)",
+                background: "transparent",
+                border: "none",
+                borderBottom: "2px dashed var(--border)",
+                outline: "none",
+                width: "100%",
+                fontSize: "inherit",
+                padding: "0 0 4px",
+              } as React.CSSProperties}
+            />
+          ) : (
+            <h1
+              className="article-h1"
+              style={{
+                fontFamily: "var(--font-serif)",
+                fontWeight: 600,
+                letterSpacing: "-0.025em",
+                lineHeight: 1.12,
+                margin: "0 0 16px",
+                textWrap: "balance",
+                color: "var(--fg)",
+              } as React.CSSProperties}
+            >
+              {editTitle}
+            </h1>
+          )}
 
           {/* Tags */}
-          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 24 }}>
-            {post.tags.map((t, i) => (
-              <TagPill
-                key={t}
-                tag={t}
-                href={`/tags/${t}`}
-                variant={i % 2 === 1 ? "amber" : "orange"}
-              />
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 24, alignItems: "center" }}>
+            {editTags.map((t, i) => (
+              isAdmin ? (
+                <span
+                  key={t}
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 4,
+                    padding: "2px 8px",
+                    background: i % 2 === 1 ? "var(--amber-bg)" : "var(--accent-bg)",
+                    color: i % 2 === 1 ? "oklch(0.45 0.12 60)" : "var(--rust)",
+                    borderRadius: 999,
+                    fontSize: 11,
+                    fontWeight: 500,
+                    fontFamily: "var(--font-sans)",
+                  }}
+                >
+                  #{t}
+                  <button
+                    onClick={() => removeTag(t)}
+                    style={{ background: "none", border: "none", cursor: "pointer", padding: 0, lineHeight: 1, color: "inherit", fontSize: 13, opacity: 0.7 }}
+                  >
+                    ×
+                  </button>
+                </span>
+              ) : (
+                <TagPill key={t} tag={t} href={`/tags/${t}`} variant={i % 2 === 1 ? "amber" : "orange"} />
+              )
             ))}
+            {isAdmin && (
+              <input
+                value={tagInput}
+                onChange={(e) => setTagInput(e.target.value)}
+                placeholder="+ тег"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === ",") { e.preventDefault(); addTag(tagInput); }
+                }}
+                style={{
+                  background: "none",
+                  border: "1px dashed var(--border)",
+                  borderRadius: 999,
+                  padding: "2px 10px",
+                  fontSize: 11,
+                  fontFamily: "var(--font-sans)",
+                  color: "var(--fg-mute)",
+                  outline: "none",
+                  width: 80,
+                }}
+              />
+            )}
           </div>
 
           {/* Cover image inline */}

@@ -1169,19 +1169,19 @@ export function PostForm({ initialPost }: Props) {
                         flexWrap: "wrap",
                       }}
                     >
-                      {tags.map((tag) => (
+                      {tags.map((tag, i) => (
                         <span
                           key={tag}
                           style={{
-                            background: "var(--accent-bg)",
-                            color: "var(--rust)",
+                            background: i % 2 === 1 ? "var(--amber-bg)" : "var(--accent-bg)",
+                            color: i % 2 === 1 ? "oklch(0.45 0.12 60)" : "var(--rust)",
                             borderRadius: 999,
                             fontSize: 11,
                             fontWeight: 500,
                             padding: "2px 8px",
                           }}
                         >
-                          {tag}
+                          #{tag}
                         </span>
                       ))}
                     </div>
